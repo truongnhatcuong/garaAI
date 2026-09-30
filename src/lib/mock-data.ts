@@ -1,0 +1,188 @@
+import {
+  Wrench,
+  Droplets,
+  Disc3,
+  Snowflake,
+  Cpu,
+  Gauge,
+  BatteryCharging,
+  CarFront,
+} from "lucide-react";
+import type { Service, Repair, InventoryItem } from "@/types";
+export const services: Service[] = [
+  {
+    title: "Bảo dưỡng định kỳ cấp 1 - 4",
+    description:
+      "Khám phá tổng thể 45 chi tiết quan trọng theo quy chuẩn chính hãng từng mốc km định kỳ.",
+    duration: "60 phút",
+    price: "từ 450.000 ₫",
+    icon: Wrench,
+  },
+  {
+    title: "Thay dầu & lọc nhớt cao cấp",
+    description:
+      "Dầu gốc tổng hợp toàn phần Motul, Mobil 1, Shell Helix kèm lọc chính hãng.",
+    duration: "30 phút",
+    price: "từ 350.000 ₫",
+    icon: Droplets,
+  },
+  {
+    title: "Kiểm tra & Thay má phanh ABS",
+    description:
+      "Đo độ dày đĩa phanh điện tử, thay thế má phanh gốm ceramic triệt tiêu tiếng kêu.",
+    duration: "45 phút",
+    price: "từ 650.000 ₫",
+    icon: Disc3,
+  },
+  {
+    title: "Vệ sinh & Nạp ga điều hòa ion",
+    description:
+      "Nội soi dàn lạnh, khử khuẩn ozone nano và nạp ga tinh khiết R134a.",
+    duration: "60 phút",
+    price: "từ 500.000 ₫",
+    icon: Snowflake,
+  },
+  {
+    title: "Chẩn đoán vi sai & Xóa lỗi ECU",
+    description:
+      "Quét toàn bộ hộp điều khiển điện tử bằng máy chuyên dụng OBD-II.",
+    duration: "30 phút",
+    price: "từ 300.000 ₫",
+    icon: Cpu,
+  },
+  {
+    title: "Cân mâm & Chỉnh thước lái 3D",
+    description:
+      "Căn chỉnh góc đặt bánh xe bằng camera quang học 3D chính xác cao.",
+    duration: "45 phút",
+    price: "từ 400.000 ₫",
+    icon: Gauge,
+  },
+  {
+    title: "Thay ắc quy ô tô khô (BH 24T)",
+    description:
+      "Bình AGM/EFB công nghệ Start-Stop, kích hoạt bảo hành điện tử tức thì.",
+    duration: "20 phút",
+    price: "từ 1.200.000 ₫",
+    icon: BatteryCharging,
+  },
+  {
+    title: "Gói đại tu & chăm sóc toàn diện",
+    description:
+      "Phục hồi công suất động cơ, vệ sinh buồng đốt và cân chỉnh khung gầm.",
+    duration: "180 phút",
+    price: "từ 2.800.000 ₫",
+    icon: CarFront,
+  },
+];
+export const repairs: Repair[] = [
+  {
+    time: "08:30",
+    plate: "43A-123.45",
+    vehicle: "Mazda 3 (2021)",
+    customer: "Nguyễn Văn A",
+    advisor: "Tuấn TM",
+    technician: "Bảo ĐQ",
+    status: "Chờ duyệt BG (2.35M)",
+    tone: "amber",
+  },
+  {
+    time: "09:00",
+    plate: "92A-888.99",
+    vehicle: "Mercedes C200 (2022)",
+    customer: "Lê Thị Hương",
+    advisor: "Nam PH",
+    technician: "Hưng VK",
+    status: "Đang sửa chữa (75%)",
+    tone: "blue",
+  },
+  {
+    time: "09:30",
+    plate: "43B-019.22",
+    vehicle: "Ford Ranger (2020)",
+    customer: "Trần Quốc Huy",
+    advisor: "Tuấn TM",
+    technician: "Dũng NA",
+    status: "Chờ phụ tùng (Phuộc)",
+    tone: "red",
+  },
+  {
+    time: "10:15",
+    plate: "43A-678.90",
+    vehicle: "Toyota Cross (2023)",
+    customer: "Phạm Minh Tuấn",
+    advisor: "Nam PH",
+    technician: "Thành NM",
+    status: "Sẵn sàng bàn giao (KCS)",
+    tone: "green",
+  },
+  {
+    time: "11:00",
+    plate: "43E-555.12",
+    vehicle: "Kia Seltos (2022)",
+    customer: "Đỗ Văn Kiên",
+    advisor: "Tuấn TM",
+    technician: "Bảo ĐQ",
+    status: "Tiếp nhận & Kiểm định",
+    tone: "blue",
+  },
+];
+export const inventory: InventoryItem[] = [
+  {
+    sku: "MP-MAZ3-21",
+    name: "Bộ má phanh trước Mazda 3",
+    brand: "Akebono Ceramic OEM",
+    location: "Kệ A2-T3-Ô12",
+    cost: "850.000 ₫",
+    price: "1.250.000 ₫",
+    stock: "4 / 5 bộ",
+    critical: true,
+  },
+  {
+    sku: "OIL-MOB-0W40",
+    name: "Dầu động cơ Mobil 1 Triple Action 0W-40",
+    brand: "Mobil 1 USA",
+    location: "Kệ B1-T1-Ô04",
+    cost: "920.000 ₫",
+    price: "1.350.000 ₫",
+    stock: "38 / 10 can",
+  },
+  {
+    sku: "FL-MANN-W712",
+    name: "Lọc dầu nhớt Mann-Filter W 712/94",
+    brand: "Mann Filter Germany",
+    location: "Kệ A1-T2-Ô08",
+    cost: "180.000 ₫",
+    price: "290.000 ₫",
+    stock: "19 / 8 cái",
+  },
+  {
+    sku: "AF-DENSO-17801",
+    name: "Lọc gió động cơ Denso Clean Air",
+    brand: "Denso Corporation",
+    location: "Kệ C1-T2-Ô03",
+    cost: "240.000 ₫",
+    price: "380.000 ₫",
+    stock: "2 / 6 cái",
+    critical: true,
+  },
+  {
+    sku: "WP-BOSCH-A864S",
+    name: "Gạt mưa Bosch Aerotwin Plus",
+    brand: "Bosch Germany",
+    location: "Kệ D3-T1-Ô01",
+    cost: "480.000 ₫",
+    price: "750.000 ₫",
+    stock: "15 / 5 cặp",
+  },
+  {
+    sku: "BAT-GS-MF65",
+    name: "Bình Ắc quy Khô GS MF 12V - 65Ah",
+    brand: "GS Battery VN",
+    location: "Sàn B-02",
+    cost: "1.380.000 ₫",
+    price: "1.920.000 ₫",
+    stock: "1 / 4 bình",
+    critical: true,
+  },
+];

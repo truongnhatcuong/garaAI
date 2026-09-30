@@ -1,0 +1,34 @@
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Check } from "lucide-react";
+import { Status } from "@/components/ui/AppUi";
+import { PrintButton } from "@/components/admin/PrintButton";
+import { repairEvidence } from "@/components/admin/repairEvidence";
+
+const items = [
+  ["PHỤ TÙNG", "Bộ má phanh đĩa trước chính hãng Mazda", "Còn 4 bộ", "1", "1.250.000 ₫"],
+  ["DỊCH VỤ", "Láng đĩa phanh trước trên máy CNC", "-", "2", "500.000 ₫"],
+  ["PHỤ TÙNG", "Dầu phanh cao cấp Castrol Brake Fluid DOT4 1L", "Còn 18 chai", "1", "280.000 ₫"],
+  ["DỊCH VỤ", "Gói công thợ kỹ thuật & cân chỉnh phanh điện tử EPB", "-", "1", "150.000 ₫"],
+] as const;
+const steps = [
+  "Tháo bánh xe & tháo cùm phanh trước hai bên",
+  "Đo độ dày đĩa phanh & kiểm tra heo thắng",
+  "Tháo đĩa phanh đưa vào máy láng CNC",
+  "Vệ sinh cùm phanh & tra mỡ chịu nhiệt",
+  "Lắp má phanh mới & thay dầu DOT4",
+] as const;
+
+export function RepairOrderPage() {
+  return <div className="mx-auto max-w-[1500px] min-w-0 space-y-4">
+    <Link href="/admin/repair-orders" className="admin-text-link inline-flex items-center gap-1 text-xs"><ArrowLeft size={14} />Danh sách phiếu</Link>
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b pb-4"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h1 className="admin-page-title">SC-2024-0891</h1><Status tone="amber">Chờ khách duyệt báo giá</Status></div><p className="mt-1 text-sm">43A-123.45 <span className="text-[var(--admin-muted)]">· Mazda 3 Premium · Nguyễn Văn A</span></p></div><div className="flex flex-wrap gap-2"><PrintButton /><a href="#estimate" className="btn btn-primary">Xem báo giá</a></div></div>
+    <nav aria-label="Nội dung phiếu" className="admin-detail-nav flex max-w-full gap-4 overflow-x-auto border-b text-xs"><a href="#overview">Tổng quan</a><a href="#inspection">Kiểm tra</a><a href="#parts">Dịch vụ & phụ tùng</a><a href="#timeline">Tiến độ</a><a href="#estimate">Báo giá</a></nav>
+    <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)]"><div className="min-w-0 space-y-4">
+      <section id="overview" className="admin-panel scroll-mt-20 overflow-hidden"><div className="border-b px-4 py-3"><h2 className="text-sm font-semibold">Tổng quan phiếu</h2></div><dl className="grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-3"><div><dt className="text-xs text-[var(--admin-muted)]">Phương tiện</dt><dd className="mt-1 font-medium">Mazda 3 Premium</dd><dd className="mt-0.5 text-xs text-[var(--admin-muted)]">43A-123.45 · 42.580 km</dd></div><div><dt className="text-xs text-[var(--admin-muted)]">Chủ xe</dt><dd className="mt-1 font-medium">Nguyễn Văn A</dd><dd className="mt-0.5 text-xs text-[var(--admin-muted)]">0905 123 456 · Silver</dd></div><div><dt className="text-xs text-[var(--admin-muted)]">Cố vấn dịch vụ</dt><dd className="mt-1 font-medium">Trần Minh Tuấn</dd></div><div><dt className="text-xs text-[var(--admin-muted)]">Kỹ thuật viên</dt><dd className="mt-1 font-medium">Đặng Quốc Bảo · KTV Trưởng</dd></div><div><dt className="text-xs text-[var(--admin-muted)]">Khoang sửa chữa</dt><dd className="mt-1 font-medium">Cầu nâng 03</dd></div><div><dt className="text-xs text-[var(--admin-muted)]">Thời gian</dt><dd className="mt-1 font-medium">08:30 – 16:30 · 24/10</dd></div></dl></section>
+      <section id="inspection" className="admin-panel scroll-mt-20 overflow-hidden"><div className="border-b px-4 py-3"><h2 className="text-sm font-semibold">Kiểm tra & ghi chú kỹ thuật</h2></div><div className="space-y-4 p-4"><p className="text-sm leading-6">“Má phanh mòn sát đế kim loại 2mm. Đĩa phanh trước xuất hiện rãnh nhiệt sâu 0.3mm cần láng phẳng triệt để.”</p><div className="grid gap-3 sm:grid-cols-2">{repairEvidence.map(({src,label}) => <figure key={label} className="min-w-0"><div className="relative h-40 overflow-hidden rounded-md bg-slate-100"><Image fill unoptimized className="object-cover" src={src} alt={label} /></div><figcaption className="mt-1.5 text-xs text-[var(--admin-muted)]">{label}</figcaption></figure>)}</div></div></section>
+      <section id="parts" className="admin-panel scroll-mt-20 overflow-hidden"><div className="border-b px-4 py-3"><h2 className="text-sm font-semibold">Dịch vụ & phụ tùng</h2></div><div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Bảng dịch vụ và phụ tùng"><table className="app-table admin-table"><thead><tr><th scope="col">Hạng mục</th><th scope="col">Kho</th><th scope="col" className="text-right!">SL</th><th scope="col" className="text-right!">Thành tiền</th></tr></thead><tbody>{items.map(([type,name,stock,quantity,price]) => <tr key={name}><td><span className="font-medium">{name}</span><span className="mt-0.5 block text-[11px] text-[var(--admin-muted)]">{type}</span></td><td>{stock}</td><td className="text-right! tabular-nums">{quantity}</td><td className="text-right! whitespace-nowrap font-medium tabular-nums">{price}</td></tr>)}</tbody></table></div></section>
+      <section id="timeline" className="admin-panel scroll-mt-20 overflow-hidden"><div className="border-b px-4 py-3"><h2 className="text-sm font-semibold">Tiến độ sửa chữa</h2></div><ol className="divide-y">{steps.map((step,index) => <li key={step} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"><span className={`grid size-6 shrink-0 place-items-center rounded-full text-xs ${index < 2 ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>{index < 2 ? <Check size={13} /> : index + 1}</span><span className="min-w-0 flex-1">{step}</span><span className="text-xs text-[var(--admin-muted)]">{index < 2 ? "Hoàn tất" : index === 2 ? "Chờ duyệt" : "Chờ xếp việc"}</span></li>)}</ol></section>
+    </div><aside className="min-w-0 space-y-4 xl:sticky xl:top-20"><section id="estimate" className="admin-panel scroll-mt-20 overflow-hidden"><div className="border-b px-4 py-3"><h2 className="text-sm font-semibold">Báo giá dự kiến</h2></div><dl className="space-y-3 p-4 text-sm">{[["Phụ tùng","1.530.000 ₫"],["Tiền công","750.000 ₫"],["Chiết khấu hội viên","-100.000 ₫"],["VAT 8%","174.400 ₫"]].map(([label,value]) => <div className="flex justify-between gap-3" key={label}><dt className="text-[var(--admin-muted)]">{label}</dt><dd className="whitespace-nowrap font-medium tabular-nums">{value}</dd></div>)}<div className="flex flex-wrap items-baseline justify-between gap-2 border-t pt-4"><dt className="font-semibold">Tổng thanh toán</dt><dd className="text-lg font-semibold tabular-nums">2.354.400 ₫</dd></div></dl></section><section className="admin-panel p-4"><h2 className="text-sm font-semibold">Chứng từ</h2><p className="mt-2 text-xs text-[var(--admin-muted)]">Báo giá EST-2024-8901 · Chờ duyệt</p><Link href="/admin/invoices" className="admin-text-link mt-3 inline-block text-xs font-medium">Xem danh sách hóa đơn & báo giá</Link></section></aside></div>
+  </div>;
+}

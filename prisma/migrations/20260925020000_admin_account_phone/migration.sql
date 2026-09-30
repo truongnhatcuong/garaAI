@@ -1,0 +1,1 @@
+ALTER TABLE `UserAccount` ADD COLUMN `phone` VARCHAR(191) NULL;
