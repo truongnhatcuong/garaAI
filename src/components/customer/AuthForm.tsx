@@ -5,7 +5,139 @@ import { useState } from "react";
 import { Brand } from "@/components/shared/Brand";
 import { notifyError, notifySuccess } from "@/lib/notify";
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
-  const router = useRouter(); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
-  async function submit(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); if (!event.currentTarget.reportValidity()) { notifyError(new Error("Vui lòng kiểm tra các trường bắt buộc."), "Vui lòng kiểm tra các trường bắt buộc."); return; } setBusy(true); setError(""); const form = new FormData(event.currentTarget); const payload = Object.fromEntries(form.entries()); try { const response = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); const data = await response.json() as { role?: string; error?: string }; if (!response.ok) throw new Error(data.error ?? "Không thể xử lý yêu cầu."); notifySuccess(mode === "login" ? "Đăng nhập thành công." : "Tạo tài khoản thành công."); router.push(data.role === "ADMIN" ? "/admin" : data.role === "EMPLOYEE" ? "/employee" : "/"); router.refresh(); } catch (failure) { setError(notifyError(failure, "Có lỗi xảy ra.")); } finally { setBusy(false); } }
-  return <main className="grid min-h-screen place-items-center bg-[#eef3ff] p-4"><div className="card w-full max-w-md p-7"><Brand /><h1 className="heading mt-7 text-2xl font-bold">{mode === "login" ? "Đăng nhập AutoCare AI" : "Tạo tài khoản chủ xe"}</h1><form noValidate onSubmit={(event) => void submit(event)} className="mt-6 space-y-4">{mode === "register" && <><label className="block text-sm font-semibold">Họ và tên<input name="name" required className="field mt-2 w-full" /></label><label className="block text-sm font-semibold">Số điện thoại<input name="phone" required className="field mt-2 w-full" /></label></>}<label className="block text-sm font-semibold">Email<input name="email" type="email" required className="field mt-2 w-full" /></label><label className="block text-sm font-semibold">Mật khẩu<input name="password" type="password" required minLength={mode === "register" ? 8 : 1} className="field mt-2 w-full" /></label>{error && <p role="alert" className="text-sm text-red-700">{error}</p>}<button disabled={busy} className="btn btn-primary w-full">{busy ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Đăng ký tài khoản"}</button></form><p className="mt-5 text-center text-xs">{mode === "login" ? "Chưa có tài khoản? " : "Đã có tài khoản? "}<Link className="font-bold text-blue-700" href={mode === "login" ? "/register" : "/login"}>{mode === "login" ? "Đăng ký ngay" : "Đăng nhập"}</Link></p></div></main>;
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!event.currentTarget.reportValidity()) {
+      notifyError(
+        new Error("Vui lòng kiểm tra các trường bắt buộc."),
+        "Vui lòng kiểm tra các trường bắt buộc.",
+      );
+      return;
+    }
+    setBusy(true);
+    setError("");
+    const form = new FormData(event.currentTarget);
+    const payload = Object.fromEntries(form.entries());
+    
+    if (mode === "register" && payload.password !== payload.confirmPassword) {
+      setError("Mật khẩu nhập lại không khớp.");
+      setBusy(false);
+      return;
+    }
+    delete payload.confirmPassword;
+
+    try {
+      const response = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await response.json()) as { role?: string; error?: string };
+      if (!response.ok)
+        throw new Error(data.error ?? "Không thể xử lý yêu cầu.");
+      notifySuccess(
+        mode === "login"
+          ? "Đăng nhập thành công."
+          : "Tạo tài khoản thành công.",
+      );
+      router.push(
+        data.role === "ADMIN"
+          ? "/admin"
+          : data.role === "EMPLOYEE"
+            ? "/employee"
+            : "/",
+      );
+      router.refresh();
+    } catch (failure) {
+      setError(notifyError(failure, "Có lỗi xảy ra."));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <main className="grid min-h-screen place-items-center bg-[#eef3ff] p-4">
+      <div className="card w-full max-w-md p-7">
+        <Brand />
+        <h1 className="heading mt-7 text-2xl font-bold">
+          {mode === "login" ? "Đăng nhập AutoCare AI" : "Tạo tài khoản chủ xe"}
+        </h1>
+        <form
+          noValidate
+          onSubmit={(event) => void submit(event)}
+          className="mt-6 space-y-4"
+        >
+          {mode === "register" && (
+            <>
+              <label className="block text-sm font-semibold">
+                Họ và tên
+                <input name="name" required placeholder="Vui lòng nhập họ và tên" className="field mt-2 w-full" />
+              </label>
+              <label className="block text-sm font-semibold">
+                Số điện thoại
+                <input name="phone" required placeholder="Vui lòng nhập số điện thoại" className="field mt-2 w-full" />
+              </label>
+            </>
+          )}
+          <label className="block text-sm font-semibold">
+            Email
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="Vui lòng nhập email"
+              className="field mt-2 w-full"
+            />
+          </label>
+          <label className="block text-sm font-semibold">
+            Mật khẩu
+            <input
+              name="password"
+              type="password"
+              required
+              placeholder="Vui lòng nhập mật khẩu"
+              minLength={mode === "register" ? 8 : 1}
+              className="field mt-2 w-full"
+            />
+          </label>
+          {mode === "register" && (
+            <label className="block text-sm font-semibold">
+              Xác nhận mật khẩu
+              <input
+                name="confirmPassword"
+                type="password"
+                required
+                placeholder="Vui lòng nhập lại mật khẩu"
+                minLength={8}
+                className="field mt-2 w-full"
+              />
+            </label>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-red-700">
+              {error}
+            </p>
+          )}
+          <button disabled={busy} className="btn btn-primary w-full">
+            {busy
+              ? "Đang xử lý..."
+              : mode === "login"
+                ? "Đăng nhập"
+                : "Đăng ký tài khoản"}
+          </button>
+        </form>
+        <p className="mt-5 text-center text-xs">
+          {mode === "login" ? "Chưa có tài khoản? " : "Đã có tài khoản? "}
+          <Link
+            className="font-bold text-blue-700"
+            href={mode === "login" ? "/register" : "/login"}
+          >
+            {mode === "login" ? "Đăng ký ngay" : "Đăng nhập"}
+          </Link>
+        </p>
+      </div>
+    </main>
+  );
 }

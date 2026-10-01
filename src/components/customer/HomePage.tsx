@@ -109,7 +109,7 @@ export async function HomePage() {
         </div>
       </div>
 
-      <section className="relative bg-[radial-gradient(circle_at_76%_17%,#dceaff_0,transparent_35%),linear-gradient(125deg,#f8fbff_0%,#edf4ff_72%,#f4f8ff_100%)] pt-11 md:pt-[70px]">
+      <section className="relative bg-[radial-gradient(circle_at_76%_17%,#dceaff_0,transparent_35%),linear-gradient(125deg,#f8fbff_0%,#edf4ff_72%,#f4f8ff_100%)] pt-11 pb-16 md:pt-20 md:pb-24">
         <div className="mx-auto w-[calc(100%-32px)] max-w-[1240px] md:w-[calc(100%-48px)] relative z-[1] grid items-center gap-6 md:grid-cols-2 lg:gap-12">
           <div className="pb-0 md:pb-[35px]">
             <span className="inline-flex w-fit items-center gap-[7px] rounded-full border border-[#d7e4ff] bg-[#e9f0ff] px-3 py-2 text-xs font-extrabold tracking-[.11em] text-[#0d3bb9]">
