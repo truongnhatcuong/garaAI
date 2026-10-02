@@ -1,0 +1,4 @@
+@media (max-width: 900px) {
+  html.veyra-embedded .experience { min-height: 0; }
+  html.veyra-embedded .scene-footer { flex: none; }
+}

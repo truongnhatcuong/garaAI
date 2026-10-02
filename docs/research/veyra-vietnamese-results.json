@@ -1,0 +1,39 @@
+{
+  "pass": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "pass": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "pass": true
+    }
+  ],
+  "embedded": true,
+  "emulatedTouch": true,
+  "reducedMotion": true,
+  "errors": []
+}

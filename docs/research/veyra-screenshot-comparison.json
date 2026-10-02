@@ -1,0 +1,14 @@
+[
+  {
+    "reference": "desktop.png",
+    "viewport": "1440x900",
+    "meanAbsoluteChannelDifference": 1.8822793209876543,
+    "pixelsWithChannelDifferenceOver24Percent": 1.9310185185185185
+  },
+  {
+    "reference": "mobile.png",
+    "viewport": "390x844",
+    "meanAbsoluteChannelDifference": 3.3797757929274517,
+    "pixelsWithChannelDifferenceOver24Percent": 4.495685988576984
+  }
+]

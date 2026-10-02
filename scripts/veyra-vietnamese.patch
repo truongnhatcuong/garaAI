@@ -1,0 +1,299 @@
+diff --git a/index.html b/index.html
+index e691369..99d1780 100644
+--- a/index.html
++++ b/index.html
+@@ -1,2 +1,2 @@
+ <!doctype html>
+-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#708fa2"/><meta name="description" content="VEYRA. Explore an electric vehicle from the inside out. An independent, fictional automotive concept."/><title>VEYRA — Electric, inside out.</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
++<html lang="vi"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#edf4ff"/><meta name="description" content="VEYRA. Khám phá xe điện từ bên trong. Một ý tưởng thiết kế ô tô độc lập và hư cấu."/><title>VEYRA — Hiểu xe từ bên trong.</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+diff --git a/production/test-appearance.cjs b/production/test-appearance.cjs
+index f1b1655..e65a380 100644
+--- a/production/test-appearance.cjs
++++ b/production/test-appearance.cjs
+@@ -51,13 +51,13 @@ states[4] = true // Initial scene images loaded.
+ states[14] = new Set(Object.values(appearance.appearanceOptions).flat().map(option => option.image))
+ render()
+ video().props.onNeutral(false)
+-button('Body colour').props.onFocus()
++button('Màu sơn').props.onFocus()
+ render()
+ assert.equal(menu().props.mode, 'paint')
+ assert.equal(menu().props.waiting, true)
+-assert.equal(button('Explore the battery pack').props.disabled, true)
+-assert.equal(button('Explore the drive unit').props.disabled, true)
+-assert.equal(button('Wheel design').props.disabled, true)
++assert.equal(button('Khám phá bộ pin').props.disabled, true)
++assert.equal(button('Khám phá hệ truyền động').props.disabled, true)
++assert.equal(button('Kiểu mâm').props.disabled, true)
+ assert.equal(video().props.desired, null)
+ menu().props.onSelect('electric'); render()
+ assert.equal(menu().props.selected, 'silver', 'Ignore selection while hover returns')
+@@ -66,22 +66,22 @@ menu().props.onSelect('electric'); render()
+ assert.equal(menu().props.selected, 'electric')
+ assert.equal(states[12], '/media/config/electric-green.png')
+ assert.equal(states[9], true, 'Selection pins the menu')
+-button('Explore the drive unit').props.onClick(); render()
++button('Khám phá hệ truyền động').props.onClick(); render()
+ assert.equal(states[0], 'overview', 'Programmatic click must also respect the lock')
+ menu().props.onClose(); render()
+-assert.equal(button('Wheel design').props.disabled, true, 'Remain locked while fading out')
++assert.equal(button('Kiểu mâm').props.disabled, true, 'Remain locked while fading out')
+ timers.splice(0).forEach(fn => fn()); render()
+ assert.equal(menu(), null)
+-assert.equal(button('Wheel design').props.disabled, false)
++assert.equal(button('Kiểu mâm').props.disabled, false)
+ assert.equal(states[12], appearance.baseExterior)
+-button('Wheel design').props.onFocus(); render()
++button('Kiểu mâm').props.onFocus(); render()
+ assert.equal(menu().props.selected, 'original', 'Modes do not combine')
+ menu().props.onSelect('aero'); render()
+ assert.equal(states[12], '/media/config/wheels-aero.png')
+-assert.equal(button('Body colour').props.disabled, true)
+-button('Wheel design').props.onClick(); render()
++assert.equal(button('Màu sơn').props.disabled, true)
++button('Kiểu mâm').props.onClick(); render()
+ timers.splice(0).forEach(fn => fn()); render()
+ assert.equal(menu(), null, 'Second click closes pinned mode')
+-button('Body colour').props.onFocus(); render()
++button('Màu sơn').props.onFocus(); render()
+ assert.equal(menu().props.selected, 'silver', 'Reopening starts from original')
+ console.log('PASS: neutral gate, exclusive modes, click guards, pin, close fade lock, reset, no combinations')
+diff --git a/src/App.tsx b/src/App.tsx
+index 245e073..63bd46d 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -124,7 +124,7 @@ export default function App() {
+       image.onload = () => { image.decode().then(resolve, resolve) }
+       image.onerror = reject
+       image.src = source
+-    }))).then(() => { if (!cancelled) setReady(true) }).catch(() => { if (!cancelled) setError('An image could not load. Reload to retry.') })
++    }))).then(() => { if (!cancelled) setReady(true) }).catch(() => { if (!cancelled) setError('Không tải được hình ảnh. Vui lòng tải lại trang.') })
+     return () => { cancelled = true }
+   }, [])
+ 
+@@ -157,16 +157,16 @@ export default function App() {
+ 
+   return <main className={`experience phase-${phase} ${reduced ? 'reduced' : ''}`} style={{ '--scene-width': typeof plane.width === 'number' ? `${plane.width}px` : undefined, '--scene-height': typeof plane.height === 'number' ? `${plane.height}px` : undefined } as CSSProperties} aria-busy={busy}>
+     <header className="masthead">
+-      <a className="wordmark" href="/" aria-label="Return to overview">VEYRA</a>
+-      <span className="header-middle">Electric vehicle design</span>
+-      <span className="concept-label">Independent concept</span>
++      <a className="wordmark" href="/" aria-label="Trở về tổng quan">VEYRA</a>
++      <span className="header-middle">Thiết kế xe điện</span>
++      <span className="concept-label">Ý tưởng độc lập</span>
+     </header>
+ 
+-    <section ref={stage} className="stage" aria-label="Explore vehicle systems">
++    <section ref={stage} className="stage" aria-label="Khám phá các hệ thống của xe">
+       <div className="image-plane" style={{ ...plane, '--focus-x': `${current.anchor.x}%`, '--focus-y': `${current.anchor.y}%` } as CSSProperties}>
+         <div className="media-envelope"><div className="exterior-envelope">
+-        <div className="car-visual"><img className="car-image" src={ROOT_IMAGE} alt="Silver electric concept sedan in a studio" draggable={false}/><HoverVideo desired={!appearance && (hovered === 'drive' || hovered === 'battery') ? hovered : null} mode={phase} reduced={reduced} onNeutral={setNeutral}/><div className={`appearance-visual ${appearance && neutral && !appearanceClosing ? 'shown' : ''}`} aria-hidden="true"><img src={appearanceImage} alt="" draggable={false}/></div></div>
+-        </div><div className={`detail-visual ${detailVisible ? 'shown' : ''}`}><img className="detail-image" src={current.image} alt={`Illustrative cutaway of the ${current.label.toLowerCase()}`} draggable={false}/></div>
++        <div className="car-visual"><img className="car-image" src={ROOT_IMAGE} alt="Mẫu xe điện màu bạc trong studio" draggable={false}/><HoverVideo desired={!appearance && (hovered === 'drive' || hovered === 'battery') ? hovered : null} mode={phase} reduced={reduced} onNeutral={setNeutral}/><div className={`appearance-visual ${appearance && neutral && !appearanceClosing ? 'shown' : ''}`} aria-hidden="true"><img src={appearanceImage} alt="" draggable={false}/></div></div>
++        </div><div className={`detail-visual ${detailVisible ? 'shown' : ''}`}><img className="detail-image" src={current.image} alt={`Hình minh hoạ bên trong ${current.label.toLowerCase()}`} draggable={false}/></div>
+         </div>
+ 
+         {phase === 'overview' && ready && hotspots.map(item => {
+@@ -182,7 +182,7 @@ export default function App() {
+               else { openAppearance(id); setAppearancePinned(true) }
+             }} aria-expanded={appearance === id && !appearanceClosing} aria-controls={`appearance-${id}`} aria-label={item.label}>
+               <span className="hotspot-ring">{appearance === id && appearancePinned ? <X size={14} strokeWidth={1.5}/> : <Plus size={14} strokeWidth={1.5}/>}</span>
+-              <span className="hotspot-label">{id === 'paint' ? 'Paint' : 'Wheels'}</span>
++              <span className="hotspot-label">{id === 'paint' ? 'Màu sơn' : 'Kiểu mâm'}</span>
+             </button>
+             {appearance === id && !appearanceClosing && <span className="menu-bridge" aria-hidden="true"/>}
+             {appearance === id && !appearanceClosing && <AppearanceMenu mode={id} selected={optionId} loaded={loadedOptions} unavailable={failedOptions} waiting={!neutral} onSelect={chooseAppearance} onClose={() => closeAppearance()}/>}
+@@ -197,10 +197,10 @@ export default function App() {
+       </div>
+ 
+       <div className={`intro ${phase !== 'overview' ? 'hide' : ''}`} aria-hidden={phase !== 'overview'}>
+-        <h1>Electric, inside out.</h1><p className="intro-description"><span>Explore beneath the surface.</span><span>Select a point to begin.</span></p>
++        <h1>Hiểu xe từ bên trong.</h1><p className="intro-description"><span>Khám phá dưới lớp vỏ.</span><span>Chọn một điểm để bắt đầu.</span></p>
+       </div>
+ 
+-      {phase !== 'overview' && <button ref={closeButton} className="back" onClick={returnToCar} disabled={busy} aria-label="Back to vehicle"><ArrowLeft size={18}/><span>{phase === 'returning' ? 'Returning to vehicle' : 'Back to vehicle'}</span><kbd>Esc</kbd></button>}
++      {phase !== 'overview' && <button ref={closeButton} className="back" onClick={returnToCar} disabled={busy} aria-label="Quay lại chiếc xe"><ArrowLeft size={18}/><span>{phase === 'returning' ? 'Đang trở về' : 'Quay lại chiếc xe'}</span><kbd>Esc</kbd></button>}
+ 
+       <aside className={`detail-copy ${phase === 'detail' ? 'shown' : ''}`} aria-hidden={phase !== 'detail'}>
+         <div className="detail-introduction">
+@@ -211,22 +211,22 @@ export default function App() {
+         <div className="part-list">{current.points.map((point, i) => <button key={point.label} tabIndex={phase === 'detail' ? 0 : -1} className={annotation === i ? 'selected' : ''} onClick={() => setAnnotation(annotation === i ? null : i)} aria-expanded={annotation === i}>
+           <span className="part-row"><small>{String(i+1).padStart(2,'0')}</small>{point.label}<Plus size={14}/></span>{annotation === i && <span className="part-description">{point.text}</span>}
+         </button>)}</div>
+-        <div className="benefit"><span>For the driver</span><p>{current.benefit}</p></div>
++        <div className="benefit"><span>Dành cho người lái</span><p>{current.benefit}</p></div>
+         </div>
+       </aside>
+-      {(busy || !ready) && <div className="transition-status"><span className="small-dot"/>{!ready ? 'Preparing the views' : phase === 'returning' ? 'Returning to the exterior' : `Inside the ${current.label.toLowerCase()}`}</div>}
++      {(busy || !ready) && <div className="transition-status"><span className="small-dot"/>{!ready ? 'Đang chuẩn bị góc nhìn' : phase === 'returning' ? 'Đang trở về ngoại thất' : `Bên trong ${current.label.toLowerCase()}`}</div>}
+     </section>
+ 
+     <footer className="scene-footer">
+-      <div className="feature-notes" aria-label="Ways to explore">
+-        <div className="feature-note"><h3>Electric drive</h3><p>Lift the hood. Explore how the motor turns electricity into motion.</p></div>
+-        <div className="feature-note"><h3>Battery architecture</h3><p>Look beneath the body. Discover the energy stored under the cabin.</p></div>
+-        <div className="feature-note"><h3>Body finishes</h3><p>Five colours. From studio silver to a vivid electric green.</p></div>
+-        <div className="feature-note"><h3>Wheel designs</h3><p>Three expressions. Compare multi-spoke, aero and forged wheels.</p></div>
++      <div className="feature-notes" aria-label="Các cách khám phá">
++        <div className="feature-note"><h3>Truyền động điện</h3><p>Mở nắp ca-pô. Tìm hiểu cách động cơ biến điện năng thành chuyển động.</p></div>
++        <div className="feature-note"><h3>Cấu trúc bộ pin</h3><p>Nhìn dưới thân xe. Khám phá nguồn năng lượng bên dưới khoang xe.</p></div>
++        <div className="feature-note"><h3>Màu sơn ngoại thất</h3><p>Năm màu sơn. Từ bạc nguyên bản đến xanh điện nổi bật.</p></div>
++        <div className="feature-note"><h3>Thiết kế mâm</h3><p>Ba kiểu mâm: đa chấu, khí động và thể thao.</p></div>
+       </div>
+-      <div className="footer-baseline"><span>VEYRA — Design study</span><span>{phase === 'overview' ? 'Explore systems. Personalise the exterior.' : 'Illustrative engineering. Concept visualisation.'}</span></div>
++      <div className="footer-baseline"><span>VEYRA — Nghiên cứu thiết kế</span><span>{phase === 'overview' ? 'Khám phá hệ thống. Tuỳ chọn ngoại thất.' : 'Minh hoạ kỹ thuật. Ý tưởng thiết kế.'}</span></div>
+     </footer>
+-    <p className="sr-only" role="status" aria-live="polite">{busy ? `${phase === 'entering' ? 'Opening' : 'Closing'} ${current.label}` : phase === 'detail' ? `${current.label} view. Press Escape to return.` : 'Vehicle overview. Choose a system.'}</p>
+-    {error && <div className="error-message" role="alert">{error}<button onClick={() => setError('')} aria-label="Dismiss message"><X size={16}/></button></div>}
++    <p className="sr-only" role="status" aria-live="polite">{busy ? `${phase === 'entering' ? 'Đang mở' : 'Đang đóng'} ${current.label}` : phase === 'detail' ? `Góc nhìn ${current.label}. Nhấn Escape để quay lại.` : 'Tổng quan xe. Chọn một hệ thống.'}</p>
++    {error && <div className="error-message" role="alert">{error}<button onClick={() => setError('')} aria-label="Đóng thông báo"><X size={16}/></button></div>}
+   </main>
+ }
+diff --git a/src/AppearanceMenu.tsx b/src/AppearanceMenu.tsx
+index da2ba41..dadd522 100644
+--- a/src/AppearanceMenu.tsx
++++ b/src/AppearanceMenu.tsx
+@@ -7,13 +7,13 @@ export default function AppearanceMenu({ mode, selected, loaded, unavailable, wa
+ }) {
+   const options = appearanceOptions[mode]
+   const current = options.find(option => option.id === selected)!
+-  return <div className={`appearance-menu ${mode}`} id={`appearance-${mode}`} role="group" aria-label={mode === 'paint' ? 'Body colour' : 'Wheel design'}>
+-    <div className="appearance-heading"><span>{mode === 'paint' ? 'Paint' : 'Wheels'}</span><button className="appearance-close" onClick={onClose} aria-label="Close and restore original vehicle"><X size={16} strokeWidth={1.5}/></button></div>
++  return <div className={`appearance-menu ${mode}`} id={`appearance-${mode}`} role="group" aria-label={mode === 'paint' ? 'Màu sơn' : 'Kiểu mâm'}>
++    <div className="appearance-heading"><span>{mode === 'paint' ? 'Màu sơn' : 'Kiểu mâm'}</span><button className="appearance-close" onClick={onClose} aria-label="Đóng và khôi phục xe ban đầu"><X size={16} strokeWidth={1.5}/></button></div>
+     <div className="appearance-options">
+-      {options.map(option => <button key={option.id} className={`appearance-option ${option.id === selected ? 'selected' : ''}`} disabled={waiting || !loaded.has(option.image)} aria-label={`${option.label}${unavailable.has(option.image) ? ' — unavailable' : ''}`} aria-pressed={option.id === selected} title={option.label} onClick={() => onSelect(option.id)}>
++      {options.map(option => <button key={option.id} className={`appearance-option ${option.id === selected ? 'selected' : ''}`} disabled={waiting || !loaded.has(option.image)} aria-label={`${option.label}${unavailable.has(option.image) ? ' — chưa tải được' : ''}`} aria-pressed={option.id === selected} title={option.label} onClick={() => onSelect(option.id)}>
+         {mode === 'paint' ? <span className="paint-chip" style={{ backgroundColor: option.color, color: option.id === 'graphite' ? '#fff' : '#111' }}>{option.id === selected && <Check size={14}/>}</span> : <span className="wheel-chip" style={{ backgroundImage: `url("${option.image}")` }}/>} 
+       </button>)}
+     </div>
+-    <div className="appearance-caption" aria-live="polite">{waiting ? 'Returning to exterior…' : current.label}<small>{unavailable.size ? 'Some options could not load' : 'Close to explore other systems'}</small></div>
++    <div className="appearance-caption" aria-live="polite">{waiting ? 'Đang trở về xe ban đầu…' : current.label}<small>{unavailable.size ? 'Một số lựa chọn chưa tải được' : 'Đóng để khám phá hệ thống khác'}</small></div>
+   </div>
+ }
+diff --git a/src/appearance.ts b/src/appearance.ts
+index 510447c..1853106 100644
+--- a/src/appearance.ts
++++ b/src/appearance.ts
+@@ -3,16 +3,16 @@ export const baseExterior = '/media/exterior-polished.png'
+ export type AppearanceOption = { id: string; label: string; image: string; color?: string }
+ export const appearanceOptions: Record<AppearanceMode, AppearanceOption[]> = {
+   paint: [
+-    { id: 'silver', label: 'Studio Silver', color: '#c9cfd2', image: baseExterior },
+-    { id: 'electric', label: 'Electric Green', color: '#edff39', image: '/media/config/electric-green.png' },
+-    { id: 'lime', label: 'Lime Green', color: '#9fdc32', image: '/media/config/lime-green.png' },
+-    { id: 'sky', label: 'Sky Blue', color: '#708fa2', image: '/media/config/sky-blue.png' },
+-    { id: 'graphite', label: 'Graphite', color: '#30363c', image: '/media/config/graphite.png' },
++    { id: 'silver', label: 'Bạc nguyên bản', color: '#c9cfd2', image: baseExterior },
++    { id: 'electric', label: 'Xanh điện', color: '#edff39', image: '/media/config/electric-green.png' },
++    { id: 'lime', label: 'Xanh chanh', color: '#9fdc32', image: '/media/config/lime-green.png' },
++    { id: 'sky', label: 'Xanh trời', color: '#708fa2', image: '/media/config/sky-blue.png' },
++    { id: 'graphite', label: 'Xám than', color: '#30363c', image: '/media/config/graphite.png' },
+   ],
+   wheels: [
+-    { id: 'original', label: 'Multi-spoke', image: baseExterior },
+-    { id: 'aero', label: 'Aero Disc', image: '/media/config/wheels-aero.png' },
+-    { id: 'forged', label: 'Sport Forged', image: '/media/config/wheels-forged.png' },
++    { id: 'original', label: 'Đa chấu', image: baseExterior },
++    { id: 'aero', label: 'Mâm khí động', image: '/media/config/wheels-aero.png' },
++    { id: 'forged', label: 'Mâm thể thao', image: '/media/config/wheels-forged.png' },
+   ],
+ }
+ 
+diff --git a/src/content.ts b/src/content.ts
+index a655275..fea0315 100644
+--- a/src/content.ts
++++ b/src/content.ts
+@@ -1,39 +1,39 @@
+ export type SystemId = 'battery' | 'drive' | 'optics'
+ export const systems = {
+   battery: {
+-    index: '01', label: 'Battery', category: 'Energy storage', title: 'The energy\nbeneath you.',
+-    short: 'Explore the battery pack',
+-    description: 'A traction battery stores electrical energy and supplies it to the drive system. In this concept, it sits low beneath the cabin.',
+-    benefit: 'A low, flat package leaves the cabin above it open.',
++    index: '01', label: 'Bộ pin', category: 'Lưu trữ năng lượng', title: 'Năng lượng\nbên dưới bạn.',
++    short: 'Khám phá bộ pin',
++    description: 'Bộ pin lưu trữ điện năng và cung cấp cho hệ truyền động. Trong mẫu xe ý tưởng này, bộ pin nằm thấp dưới khoang xe.',
++    benefit: 'Thiết kế thấp và phẳng giúp khoang xe phía trên rộng thoáng.',
+     image: '/media/battery-blue.png', anchor: { x: 64, y: 72 },
+     points: [
+-      { label: 'Cell modules', text: 'Cells grouped into modules store the energy.', x: 31, y: 42 },
+-      { label: 'High-voltage connection', text: 'Orange connections mark the high-voltage electrical path in this illustration.', x: 27, y: 55 },
+-      { label: 'Protective enclosure', text: 'The pack housing supports and protects the assembly.', x: 49, y: 49 },
++      { label: 'Mô-đun pin', text: 'Các tế bào pin được ghép thành mô-đun để lưu trữ năng lượng.', x: 31, y: 42 },
++      { label: 'Kết nối cao áp', text: 'Các kết nối màu cam đánh dấu đường điện cao áp trong hình minh hoạ.', x: 27, y: 55 },
++      { label: 'Vỏ bảo vệ', text: 'Vỏ bộ pin nâng đỡ và bảo vệ các bộ phận bên trong.', x: 49, y: 49 },
+     ],
+   },
+   drive: {
+-    index: '02', label: 'Electric drive', category: 'Power delivery', title: 'Electricity,\ninto motion.',
+-    short: 'Explore the drive unit',
+-    description: 'The electric motor turns electrical energy into rotation. A reduction gear transfers that rotation to the wheels.',
+-    benefit: 'Control of motor torque gives the driver a responsive connection to the wheels.',
++    index: '02', label: 'Truyền động điện', category: 'Truyền năng lượng', title: 'Điện năng\nthành chuyển động.',
++    short: 'Khám phá hệ truyền động',
++    description: 'Động cơ điện biến điện năng thành chuyển động quay. Bộ giảm tốc truyền chuyển động đó tới bánh xe.',
++    benefit: 'Khả năng điều khiển mô-men động cơ giúp xe phản hồi nhanh theo thao tác người lái.',
+     image: '/media/drive-blue.png', anchor: { x: 25, y: 48 },
+     points: [
+-      { label: 'Stator windings', text: 'Stationary windings create a rotating magnetic field.', x: 32, y: 46 },
+-      { label: 'Rotor', text: 'The rotor turns within the stator and drives the shaft.', x: 24, y: 49 },
+-      { label: 'Reduction gear', text: 'Gearing lowers rotational speed and increases wheel torque.', x: 48, y: 51 },
++      { label: 'Cuộn dây stato', text: 'Các cuộn dây cố định tạo ra từ trường quay.', x: 32, y: 46 },
++      { label: 'Rôto', text: 'Rôto quay bên trong stato và dẫn động trục.', x: 24, y: 49 },
++      { label: 'Bộ giảm tốc', text: 'Bánh răng giảm tốc độ quay và tăng mô-men tại bánh xe.', x: 48, y: 51 },
+     ],
+   },
+   optics: {
+-    index: '03', label: 'Advanced lenses', category: 'Light & optics', title: 'Light,\nshaped precisely.',
+-    short: 'Explore the headlamp optics',
+-    description: 'Inside this concept headlamp, an LED module produces light and a projection lens shapes it into a controlled beam.',
+-    benefit: 'Precise light distribution helps illuminate the road where it is needed.',
++    index: '03', label: 'Thấu kính tiên tiến', category: 'Ánh sáng & quang học', title: 'Ánh sáng\nđược định hình.',
++    short: 'Khám phá quang học đèn pha',
++    description: 'Trong đèn pha ý tưởng này, mô-đun LED tạo ánh sáng và thấu kính chiếu định hình chùm sáng.',
++    benefit: 'Phân bố ánh sáng chính xác giúp chiếu sáng đúng vị trí trên đường.',
+     image: '/media/lenses-blue.png', anchor: { x: 36, y: 60 },
+     points: [
+-      { label: 'Projection lens', text: 'The optical lens directs the light into the designed beam pattern.', x: 32.9, y: 55.7 },
+-      { label: 'LED module', text: 'The light source sits behind the projection optics.', x: 50.3, y: 57.2 },
+-      { label: 'Heat sink', text: 'Metal fins dissipate heat from the light-source assembly.', x: 61.9, y: 56.3 },
++      { label: 'Thấu kính chiếu', text: 'Thấu kính hướng ánh sáng theo hình dạng chùm sáng đã thiết kế.', x: 32.9, y: 55.7 },
++      { label: 'Mô-đun LED', text: 'Nguồn sáng nằm phía sau hệ thấu kính chiếu.', x: 50.3, y: 57.2 },
++      { label: 'Bộ tản nhiệt', text: 'Các lá kim loại tản nhiệt từ cụm nguồn sáng.', x: 61.9, y: 56.3 },
+     ],
+   },
+ } as const
+@@ -41,8 +41,8 @@ export const systemIds: SystemId[] = ['battery', 'drive', 'optics']
+ export type HotspotId = SystemId | 'wheels' | 'paint'
+ export const hotspots: { id: HotspotId; index: string; label: string; anchor: { x: number; y: number }; target: SystemId | null }[] = [
+   ...(['battery', 'drive'] as const).map(id => ({ id, index: systems[id].index, label: systems[id].label, anchor: systems[id].anchor, target: id })),
+-  { id: 'paint', index: '03', label: 'Body colour', anchor: { x: 55, y: 51 }, target: null },
+-  { id: 'wheels', index: '04', label: 'Wheel design', anchor: { x: 48, y: 71 }, target: null },
++  { id: 'paint', index: '03', label: 'Màu sơn', anchor: { x: 55, y: 51 }, target: null },
++  { id: 'wheels', index: '04', label: 'Kiểu mâm', anchor: { x: 48, y: 71 }, target: null },
+ ]
+ 
+ // Enable each pair only after first/last frames, crop and color have been checked.
+diff --git a/src/index.css b/src/index.css
+index 3c67c2f..9fa9180 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -173,3 +173,16 @@ svg{stroke-width:1.5}
+ @media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition-duration:.01ms!important}.car-visual{transform:none!important}
+ }
++
++/* AutoCare presentation adaptation. Approved media and geometry are unchanged. */
++:root{--studio:#edf4ff;--acid:#0d3bb9;--ink:#0b1930;--muted:#52637e;--panel:#fff;--line:#cbd9ef;--on-acid:#fff;background:var(--studio)}
++.hotspot-ring{box-shadow:0 0 0 5px #0d3bb914}
++.hotspot-ring:after{border-color:#0d3bb950}
++.hotspot.active .hotspot-ring,.hotspot:hover:not(:disabled) .hotspot-ring{box-shadow:0 0 0 5px #0d3bb920}
++.annotation.open>span:first-child{box-shadow:0 0 0 4px #0d3bb928}
++.appearance-option:hover:not(:disabled){background:#edf4ff}
++.back:hover:not(:disabled){background:#082d96}
++.back kbd{border-left-color:#ffffff50}
++@media(min-width:901px) and (min-height:781px){
++ .detail-copy{--ink:#fff;--muted:#e1eaf0;--line:#ffffff30;--acid:#edff39;color:var(--ink)}
++}

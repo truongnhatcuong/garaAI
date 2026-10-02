@@ -47,3 +47,7 @@ next-env.d.ts
 
 # Local temp files
 temp/
+
+# Independent upstream reference checkout; its built scene is in public/veyra.
+/veyra-interactive-car/
+/veyra-autocare/
