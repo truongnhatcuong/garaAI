@@ -88,13 +88,9 @@ const links = groups.flatMap((group) => group.items);
 export function AdminShell({
   children,
   name,
-  email,
-  phone,
 }: {
   children: React.ReactNode;
   name: string;
-  email: string;
-  phone: string | null;
 }) {
   const initials = name.trim().split(/\s+/).slice(-2).map((part) => part[0]?.toUpperCase()).join("");
   const path = usePathname();

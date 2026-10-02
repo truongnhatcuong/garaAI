@@ -28,6 +28,8 @@ const links = [
 export function CustomerShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
+  const [homeHeaderVisible, setHomeHeaderVisible] = useState(false);
+  const headerVisible = path !== "/" || homeHeaderVisible;
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [logoutBusy, setLogoutBusy] = useState(false);
@@ -43,6 +45,46 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
       .then(setAccount)
       .catch(() => {});
   }, []);
+  useEffect(() => {
+    if (path !== "/") return;
+    let animationFrame = 0;
+    const updateHeader = () => {
+      animationFrame = 0;
+      const marker = document.getElementById("home-content");
+      const visible = !!marker && marker.getBoundingClientRect().top <= 0;
+      setHomeHeaderVisible(visible);
+      if (!visible) {
+        setOpen(false);
+        setAccountOpen(false);
+      }
+    };
+    const scheduleUpdate = () => {
+      if (!animationFrame) {
+        animationFrame = window.requestAnimationFrame(updateHeader);
+      }
+    };
+    // Wait for the homepage marker if its server-rendered content is still streaming.
+    const contentObserver = new MutationObserver(() => {
+      if (!document.getElementById("home-content")) return;
+      contentObserver.disconnect();
+      scheduleUpdate();
+    });
+    if (!document.getElementById("home-content")) {
+      contentObserver.observe(document.body, { childList: true, subtree: true });
+    }
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    window.addEventListener("pageshow", scheduleUpdate);
+    scheduleUpdate();
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      contentObserver.disconnect();
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("pageshow", scheduleUpdate);
+      setHomeHeaderVisible(false);
+    };
+  }, [path]);
   async function signOut() {
     setLogoutBusy(true);
     setLogoutError("");
@@ -66,7 +108,16 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
   }
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header
+        inert={!headerVisible}
+        className={cn(
+          "top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur",
+          path === "/"
+            ? "fixed inset-x-0 transition-[transform,opacity] duration-300 motion-reduce:transition-none"
+            : "sticky",
+          !headerVisible && "invisible -translate-y-full opacity-0",
+        )}
+      >
         <div className="mx-auto flex h-[68px] max-w-[1440px] items-center gap-8 px-4 md:px-6">
           <Brand />
           <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex">
