@@ -23,6 +23,7 @@ import {
   Users,
   Wrench,
   X,
+  CreditCard,
   BellRing,
   Warehouse,
 } from "lucide-react";
@@ -66,10 +67,11 @@ const groups: {
     title: "Tài chính",
     items: [
       {
-        label: "Hóa đơn",
+        label: "Hóa đơn & báo giá",
         href: "/admin/invoices",
         icon: ReceiptText,
       },
+      { label: "Thanh toán", href: "/admin/payments", icon: CreditCard },
     ],
   },
   {
@@ -86,9 +88,13 @@ const links = groups.flatMap((group) => group.items);
 export function AdminShell({
   children,
   name,
+  email,
+  phone,
 }: {
   children: React.ReactNode;
   name: string;
+  email: string;
+  phone: string | null;
 }) {
   const initials = name.trim().split(/\s+/).slice(-2).map((part) => part[0]?.toUpperCase()).join("");
   const path = usePathname();
@@ -117,20 +123,10 @@ export function AdminShell({
     { id: string; title: string }[]
   >([]);
   useEffect(() => {
-    let active = true;
-    function loadNotifications() {
-      if (document.visibilityState !== "visible") return;
-      fetch("/api/notifications?pageSize=5", { cache: "no-store" })
-        .then(async (response) => {
-          if (!response.ok) throw new Error("Không tải được thông báo.");
-          return response.json() as Promise<{ items?: { id: string; title: string }[] }>;
-        })
-        .then((data) => { if (active) setNotifications(data.items ?? []); })
-        .catch(() => {});
-    }
-    loadNotifications();
-    const timer = window.setInterval(loadNotifications, 15000);
-    return () => { active = false; window.clearInterval(timer); };
+    fetch("/api/notifications?pageSize=5")
+      .then((response) => response.json())
+      .then((data) => setNotifications(data.items ?? []))
+      .catch(() => setNotifications([]));
   }, []);
   useEffect(() => {
     const term = query.trim();
