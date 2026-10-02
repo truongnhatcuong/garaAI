@@ -19,7 +19,10 @@ export function ChangePasswordForm() {
     const confirmPassword = String(fields.get("confirmPassword") ?? "");
     if (newPassword !== confirmPassword) {
       setError("Xác nhận mật khẩu mới chưa khớp.");
-      notifyError(new Error("Xác nhận mật khẩu mới chưa khớp."), "Không thể đổi mật khẩu.");
+      notifyError(
+        new Error("Xác nhận mật khẩu mới chưa khớp."),
+        "Không thể đổi mật khẩu.",
+      );
       return;
     }
     setBusy(true);
@@ -30,8 +33,9 @@ export function ChangePasswordForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-      const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error ?? "Không thể đổi mật khẩu.");
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok)
+        throw new Error(result.error ?? "Không thể đổi mật khẩu.");
       form.reset();
       notifySuccess("Đổi mật khẩu thành công. Vui lòng đăng nhập lại.");
       router.push("/login");
@@ -43,15 +47,62 @@ export function ChangePasswordForm() {
     }
   }
 
-  return <section id="change-password" className="card scroll-mt-24 p-6">
-    <h2 className="text-base font-semibold">Đổi mật khẩu</h2>
-    <p className="mt-1 text-sm text-slate-600">Sau khi đổi, bạn cần đăng nhập lại trên các thiết bị.</p>
-    <form onSubmit={(event) => void submit(event)} className="mt-5 max-w-md space-y-4">
-      <label className="block text-sm font-medium">Mật khẩu hiện tại<input className="field mt-1 w-full" name="currentPassword" type="password" autoComplete="current-password" required /></label>
-      <label className="block text-sm font-medium">Mật khẩu mới<input className="field mt-1 w-full" name="newPassword" type="password" autoComplete="new-password" minLength={8} maxLength={128} required /></label>
-      <label className="block text-sm font-medium">Xác nhận mật khẩu mới<input className="field mt-1 w-full" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} maxLength={128} required /></label>
-      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-      <button type="submit" disabled={busy} className="btn btn-primary">{busy ? "Đang cập nhật…" : "Đổi mật khẩu"}</button>
-    </form>
-  </section>;
+  return (
+    <section id="change-password" className="card scroll-mt-24 p-6">
+      <h2 className="text-base font-semibold">Đổi mật khẩu</h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Sau khi đổi, bạn cần đăng nhập lại trên các thiết bị.
+      </p>
+      <form
+        onSubmit={(event) => void submit(event)}
+        className="mt-5 max-w-md space-y-4"
+      >
+        <label className="block text-sm font-medium">
+          Mật khẩu hiện tại
+          <input
+            className="field mt-1 w-full"
+            name="currentPassword"
+            type="password"
+            placeholder="nhập mật khẩu hiện tại"
+            autoComplete="current-password"
+            required
+          />
+        </label>
+        <label className="block text-sm font-medium">
+          Mật khẩu mới
+          <input
+            className="field mt-1 w-full"
+            name="newPassword"
+            type="password"
+            autoComplete="new-password"
+            placeholder="nhập mật khẩu mới"
+            minLength={8}
+            maxLength={128}
+            required
+          />
+        </label>
+        <label className="block text-sm font-medium">
+          Xác nhận mật khẩu mới
+          <input
+            className="field mt-1 w-full"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Nhập lại mật khẩu mới"
+            minLength={8}
+            maxLength={128}
+            required
+          />
+        </label>
+        {error && (
+          <p role="alert" className="text-sm text-red-700">
+            {error}
+          </p>
+        )}
+        <button type="submit" disabled={busy} className="btn btn-primary">
+          {busy ? "Đang cập nhật…" : "Đổi mật khẩu"}
+        </button>
+      </form>
+    </section>
+  );
 }

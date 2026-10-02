@@ -1,4 +1,5 @@
 import { DiagnosticVehicle } from "@/components/customer/DiagnosticVehicle";
+import { GarageMapSection } from "@/components/customer/GarageMapSection";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -18,6 +19,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { getPrisma } from "@/server/db";
+import { getSiteMap } from "@/server/services/site-map";
 
 const highlights = [
   {
@@ -76,6 +78,7 @@ const features = [
 ];
 
 export async function HomePage() {
+  const mapPromise = getSiteMap();
   let loadError = false;
   let services: {
     id: string;
@@ -93,6 +96,7 @@ export async function HomePage() {
   } catch {
     loadError = true;
   }
+  const siteMap = await mapPromise;
 
   return (
     <div className="overflow-hidden bg-white text-[#0b1930]">
@@ -200,7 +204,7 @@ export async function HomePage() {
               <span className="inline-flex w-fit items-center gap-[7px] text-xs font-extrabold tracking-[.11em] text-[#0d3bb9]">
                 DỊCH VỤ AUTOCARE
               </span>
-              <h2 className="mt-[11px] max-w-[650px] font-[family-name:var(--font-jakarta)] text-[clamp(27px,3vw,39px)] leading-[1.23] font-extrabold tracking-[-.055em]">
+              <h2 className="mt-[11px] max-w-[700px] font-[family-name:var(--font-jakarta)] text-[clamp(27px,3vw,39px)] leading-[1.23] font-extrabold tracking-[-.055em]">
                 Chăm xe toàn diện,{" "}
                 <span className="text-[#0d3bb9]">theo cách của bạn.</span>
               </h2>
@@ -364,6 +368,8 @@ export async function HomePage() {
           </div>
         </div>
       </section>
+
+      <GarageMapSection map={siteMap} />
 
       <section className="bg-[#f9fbff] pt-[34px] pb-[55px] md:pb-20">
         <div className="mx-auto w-[calc(100%-32px)] max-w-[1240px] md:w-[calc(100%-48px)]">

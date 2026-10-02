@@ -11,6 +11,7 @@
 export type * from './models/Customer'
 export type * from './models/MembershipTier'
 export type * from './models/InvoiceSettings'
+export type * from './models/SiteMapSettings'
 export type * from './models/Vehicle'
 export type * from './models/Service'
 export type * from './models/Employee'

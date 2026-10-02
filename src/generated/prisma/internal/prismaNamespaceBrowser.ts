@@ -54,6 +54,7 @@ export const ModelName = {
   Customer: 'Customer',
   MembershipTier: 'MembershipTier',
   InvoiceSettings: 'InvoiceSettings',
+  SiteMapSettings: 'SiteMapSettings',
   Vehicle: 'Vehicle',
   Service: 'Service',
   Employee: 'Employee',
@@ -124,6 +125,17 @@ export const InvoiceSettingsScalarFieldEnum = {
 } as const
 
 export type InvoiceSettingsScalarFieldEnum = (typeof InvoiceSettingsScalarFieldEnum)[keyof typeof InvoiceSettingsScalarFieldEnum]
+
+
+export const SiteMapSettingsScalarFieldEnum = {
+  id: 'id',
+  placeName: 'placeName',
+  address: 'address',
+  embedUrl: 'embedUrl',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteMapSettingsScalarFieldEnum = (typeof SiteMapSettingsScalarFieldEnum)[keyof typeof SiteMapSettingsScalarFieldEnum]
 
 
 export const VehicleScalarFieldEnum = {
@@ -454,6 +466,15 @@ export const MembershipTierOrderByRelevanceFieldEnum = {
 } as const
 
 export type MembershipTierOrderByRelevanceFieldEnum = (typeof MembershipTierOrderByRelevanceFieldEnum)[keyof typeof MembershipTierOrderByRelevanceFieldEnum]
+
+
+export const SiteMapSettingsOrderByRelevanceFieldEnum = {
+  placeName: 'placeName',
+  address: 'address',
+  embedUrl: 'embedUrl'
+} as const
+
+export type SiteMapSettingsOrderByRelevanceFieldEnum = (typeof SiteMapSettingsOrderByRelevanceFieldEnum)[keyof typeof SiteMapSettingsOrderByRelevanceFieldEnum]
 
 
 export const VehicleOrderByRelevanceFieldEnum = {

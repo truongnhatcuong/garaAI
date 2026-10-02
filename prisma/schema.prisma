@@ -113,6 +113,14 @@ model InvoiceSettings {
   updatedAt  DateTime @updatedAt
 }
 
+model SiteMapSettings {
+  id        Int      @id @default(1)
+  placeName String   @db.VarChar(100)
+  address   String   @db.VarChar(255)
+  embedUrl  String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
 model Vehicle {
   id           String        @id @default(cuid())
   plate        String        @unique

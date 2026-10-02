@@ -33,6 +33,11 @@ export type MembershipTier = Prisma.MembershipTierModel
  */
 export type InvoiceSettings = Prisma.InvoiceSettingsModel
 /**
+ * Model SiteMapSettings
+ * 
+ */
+export type SiteMapSettings = Prisma.SiteMapSettingsModel
+/**
  * Model Vehicle
  * 
  */

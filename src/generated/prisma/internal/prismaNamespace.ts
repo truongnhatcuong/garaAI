@@ -400,6 +400,7 @@ export const ModelName = {
   Customer: 'Customer',
   MembershipTier: 'MembershipTier',
   InvoiceSettings: 'InvoiceSettings',
+  SiteMapSettings: 'SiteMapSettings',
   Vehicle: 'Vehicle',
   Service: 'Service',
   Employee: 'Employee',
@@ -434,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "membershipTier" | "invoiceSettings" | "vehicle" | "service" | "employee" | "appointment" | "appointmentBookingMutex" | "part" | "repairOrder" | "repairOrderLine" | "repairTask" | "repairEvidence" | "imageDeletionJob" | "invoice" | "payment" | "notification" | "workshopBay" | "report" | "expense" | "userAccount" | "session"
+    modelProps: "customer" | "membershipTier" | "invoiceSettings" | "siteMapSettings" | "vehicle" | "service" | "employee" | "appointment" | "appointmentBookingMutex" | "part" | "repairOrder" | "repairOrderLine" | "repairTask" | "repairEvidence" | "imageDeletionJob" | "invoice" | "payment" | "notification" | "workshopBay" | "report" | "expense" | "userAccount" | "session"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -633,6 +634,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InvoiceSettingsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InvoiceSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    SiteMapSettings: {
+      payload: Prisma.$SiteMapSettingsPayload<ExtArgs>
+      fields: Prisma.SiteMapSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteMapSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteMapSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteMapSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteMapSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.SiteMapSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.SiteMapSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.SiteMapSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SiteMapSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        update: {
+          args: Prisma.SiteMapSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteMapSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteMapSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SiteMapSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteMapSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteMapSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteMapSettings>
+        }
+        groupBy: {
+          args: Prisma.SiteMapSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteMapSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteMapSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteMapSettingsCountAggregateOutputType> | number
         }
       }
     }
@@ -1964,6 +2031,17 @@ export const InvoiceSettingsScalarFieldEnum = {
 export type InvoiceSettingsScalarFieldEnum = (typeof InvoiceSettingsScalarFieldEnum)[keyof typeof InvoiceSettingsScalarFieldEnum]
 
 
+export const SiteMapSettingsScalarFieldEnum = {
+  id: 'id',
+  placeName: 'placeName',
+  address: 'address',
+  embedUrl: 'embedUrl',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteMapSettingsScalarFieldEnum = (typeof SiteMapSettingsScalarFieldEnum)[keyof typeof SiteMapSettingsScalarFieldEnum]
+
+
 export const VehicleScalarFieldEnum = {
   id: 'id',
   plate: 'plate',
@@ -2292,6 +2370,15 @@ export const MembershipTierOrderByRelevanceFieldEnum = {
 } as const
 
 export type MembershipTierOrderByRelevanceFieldEnum = (typeof MembershipTierOrderByRelevanceFieldEnum)[keyof typeof MembershipTierOrderByRelevanceFieldEnum]
+
+
+export const SiteMapSettingsOrderByRelevanceFieldEnum = {
+  placeName: 'placeName',
+  address: 'address',
+  embedUrl: 'embedUrl'
+} as const
+
+export type SiteMapSettingsOrderByRelevanceFieldEnum = (typeof SiteMapSettingsOrderByRelevanceFieldEnum)[keyof typeof SiteMapSettingsOrderByRelevanceFieldEnum]
 
 
 export const VehicleOrderByRelevanceFieldEnum = {
@@ -2761,6 +2848,7 @@ export type GlobalOmitConfig = {
   customer?: Prisma.CustomerOmit
   membershipTier?: Prisma.MembershipTierOmit
   invoiceSettings?: Prisma.InvoiceSettingsOmit
+  siteMapSettings?: Prisma.SiteMapSettingsOmit
   vehicle?: Prisma.VehicleOmit
   service?: Prisma.ServiceOmit
   employee?: Prisma.EmployeeOmit

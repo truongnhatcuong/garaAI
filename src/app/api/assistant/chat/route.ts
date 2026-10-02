@@ -1,13 +1,14 @@
 import { z } from "zod";
+import { withSafetyReminder } from "@/lib/customer-assistant-safety";
 import { getCurrentUser } from "@/server/services/auth";
 import { getCustomerAssistantContext, getCustomerAssistantPrompt } from "@/server/services/customer-assistant";
 
 export const runtime = "nodejs";
 
-const messageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string().trim().min(1).max(2000),
-}).strict();
+const messageSchema = z.discriminatedUnion("role", [
+  z.object({ role: z.literal("user"), content: z.string().trim().min(1).max(2000) }).strict(),
+  z.object({ role: z.literal("assistant"), content: z.string().trim().min(1).max(6000) }).strict(),
+]);
 const requestSchema = z.object({ messages: z.array(messageSchema).min(1).max(10) }).strict();
 const limits = new Map<string, { count: number; resetAt: number }>();
 
@@ -60,7 +61,8 @@ export async function POST(request: Request) {
     const result: unknown = await response.json();
     const reply = z.object({ choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1) }).safeParse(result);
     if (!reply.success || !reply.data.choices[0].message.content.trim()) return Response.json({ error: "Trợ lý AI chưa trả lời được câu hỏi này. Vui lòng thử lại." }, { status: 502 });
-    return Response.json({ reply: reply.data.choices[0].message.content.trim() }, { headers: { "Cache-Control": "no-store" } });
+    const content = withSafetyReminder(parsed.data.messages.at(-1)?.content ?? "", reply.data.choices[0].message.content.trim());
+    return Response.json({ reply: content }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof Error && error.message === "CUSTOMER_NOT_FOUND") return Response.json({ error: "Không tìm thấy hồ sơ khách hàng." }, { status: 404 });
     console.error("Customer assistant request failed", error instanceof Error ? error.name : "unknown");
