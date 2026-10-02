@@ -86,13 +86,9 @@ const links = groups.flatMap((group) => group.items);
 export function AdminShell({
   children,
   name,
-  email,
-  phone,
 }: {
   children: React.ReactNode;
   name: string;
-  email: string;
-  phone: string | null;
 }) {
   const initials = name.trim().split(/\s+/).slice(-2).map((part) => part[0]?.toUpperCase()).join("");
   const path = usePathname();
@@ -474,10 +470,6 @@ export function AdminShell({
                 <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
                   Quản trị viên
                 </p>
-                <div className="mt-3 space-y-1 border-t pt-3 text-xs text-[var(--admin-muted)]">
-                  <p className="break-all">{email}</p>
-                  <p>{phone || "Chưa cập nhật số điện thoại"}</p>
-                </div>
                 <Link href="/admin/settings#profile" className="mt-3 block border-t pt-3 text-sm">Thông tin tài khoản</Link>
                 <Link
                   href="/admin/settings#change-password"

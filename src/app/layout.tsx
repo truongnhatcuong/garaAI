@@ -11,7 +11,7 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
 });
 export const metadata: Metadata = {
-  title: "Gara Sửa Xe | AutoCare AI",
+  title: "Gara Ôtô | AutoCare AI",
   description: "Nền tảng quản lý gara và chăm sóc xe thông minh",
   icons: {
     icon: "/images/image.png",

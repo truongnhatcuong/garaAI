@@ -55,7 +55,7 @@ export function CustomerFooter() {
         </div>
       </div>
 
-      <div className="border-t border-white/10"><div className="mx-auto flex max-w-[1240px] flex-col gap-2 px-4 py-5 text-[11px] text-slate-400 sm:flex-row sm:items-center sm:justify-between md:px-6"><p>© {new Date().getFullYear()} Gara Sửa Xe · AutoCare AI. Bảo lưu mọi quyền.</p><p>Chăm xe rõ ràng từ đầu đến cuối.</p></div></div>
+      <div className="border-t border-white/10"><div className="mx-auto flex max-w-[1240px] flex-col gap-2 px-4 py-5 text-[11px] text-slate-400 sm:flex-row sm:items-center sm:justify-between md:px-6"><p>© {new Date().getFullYear()} Gara Ôtô · AutoCare AI. Bảo lưu mọi quyền.</p><p>Chăm xe rõ ràng từ đầu đến cuối.</p></div></div>
     </footer>
   );
 }

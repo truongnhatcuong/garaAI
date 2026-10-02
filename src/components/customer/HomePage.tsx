@@ -1,5 +1,6 @@
 import { DiagnosticVehicle } from "@/components/customer/DiagnosticVehicle";
 import { GarageMapSection } from "@/components/customer/GarageMapSection";
+import { ScrollVideoSection } from "@/components/customer/ScrollVideoSection";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -26,21 +27,25 @@ const highlights = [
     icon: Settings2,
     title: "Bảo dưỡng định kỳ",
     detail: "Chăm sóc đúng mốc, an tâm trên mọi hành trình.",
+    url: "/appointments",
   },
   {
     icon: Droplets,
     title: "Thay dầu & lọc nhớt",
     detail: "Giữ động cơ vận hành êm và bền bỉ hơn.",
+    url: "/services",
   },
   {
     icon: ScanSearch,
     title: "Hỗ trợ tư vấn bằng AI",
     detail: "Hỏi đáp về tình trạng xe bằng ngôn ngữ dễ hiểu.",
+    url: "/ai-assistant",
   },
   {
     icon: Wrench,
     title: "Sửa chữa chuyên sâu",
     detail: "Theo dõi từng hạng mục từ lúc nhận xe.",
+    url: "/repairs",
   },
 ];
 const steps = [
@@ -99,8 +104,9 @@ export async function HomePage() {
   const siteMap = await mapPromise;
 
   return (
-    <div className="overflow-hidden bg-white text-[#0b1930]">
-      <div className="border-b border-[#d9e5ff] bg-[#e7efff] text-[#173a86]">
+    <div className="overflow-x-clip bg-white text-[#0b1930]">
+          <ScrollVideoSection />
+      <div id="home-content" tabIndex={-1} className="border-b border-[#d9e5ff] bg-[#e7efff] text-[#173a86]">
         <div className="mx-auto w-[calc(100%-32px)] max-w-[1240px] md:w-[calc(100%-48px)] flex min-h-[30px] items-center justify-between gap-5 text-xs font-bold tracking-[.075em]">
           <span className="inline-flex items-center gap-[7px]">
             <i className="inline-block h-[7px] w-[7px] shrink-0 rounded-full bg-[#43d5c8] shadow-[0_0_0_4px_#43d5c82b]" />{" "}
@@ -142,7 +148,7 @@ export async function HomePage() {
                 Khám phá dịch vụ <ChevronRight size={17} />
               </Link>
             </div>
-            <div className="mt-[29px] flex flex-wrap items-center gap-2 text-xs font-semibold text-[#536683] md:text-[11px] [&_svg]:text-[#0d3bb9] [&>span]:mx-[7px] [&>span]:h-4 [&>span]:w-px [&>span]:bg-[#cbd9ef]">
+            <div className="mt-[29px] flex flex-wrap items-center gap-2 text-xs font-semibold text-[#536683] md:text-[15px] [&_svg]:text-[#0d3bb9] [&>span]:mx-[7px] [&>span]:h-4 [&>span]:w-px [&>span]:bg-[#cbd9ef]">
               <BadgeCheck size={17} /> Báo giá rõ ràng <span />{" "}
               <ShieldCheck size={17} /> Lưu toàn bộ lịch sử xe
             </div>
@@ -197,6 +203,8 @@ export async function HomePage() {
         </div>
       </section>
 
+
+
       <section className="bg-white pt-[106px] pb-[65px] md:pt-[118px] md:pb-[91px]">
         <div className="mx-auto w-[calc(100%-32px)] max-w-[1240px] md:w-[calc(100%-48px)]">
           <div className="mb-[29px] block gap-[30px] md:flex md:items-end md:justify-between">
@@ -215,9 +223,9 @@ export async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3.5 min-[480px]:grid-cols-2 lg:grid-cols-4">
-            {highlights.map(({ icon: Icon, title, detail }, index) => (
+            {highlights.map(({ icon: Icon, title, detail, url }, index) => (
               <Link
-                href="/services"
+                href={url}
                 className="flex min-h-[145px] flex-col rounded-xl border border-[#e5ebf5] bg-white p-5 text-[#0b1930] no-underline shadow-[0_4px_18px_#123e7a08] transition-all hover:-translate-y-[5px] hover:border-[#b5ccff] hover:shadow-[0_15px_30px_#123e7a16] min-[480px]:min-h-[233px]"
                 key={title}
               >
@@ -235,7 +243,7 @@ export async function HomePage() {
                 <p className="text-base leading-[1.55] text-[#66748a]">
                   {detail}
                 </p>
-                <span className="mt-auto inline-flex items-center gap-2 pt-[18px] text-[11px] font-extrabold text-[#0d3bb9]">
+                <span className="mt-auto inline-flex items-center gap-2 pt-[18px] text-[15px] font-extrabold text-[#0d3bb9]">
                   Xem dịch vụ <ArrowRight size={15} />
                 </span>
               </Link>
@@ -266,11 +274,11 @@ export async function HomePage() {
                     key={service.id}
                   >
                     <h4 className="text-[13px] font-bold">{service.title}</h4>
-                    <p className="mt-2 mb-3 flex-1 text-[11px] leading-normal text-[#67758a]">
+                    <p className="mt-2 mb-3 flex-1 text-[15px] leading-normal text-[#67758a]">
                       {service.description ||
                         "Xem thông tin chi tiết về dịch vụ tại AutoCare AI."}
                     </p>
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e3eaf6] pt-[9px] text-[11px]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e3eaf6] pt-[9px] text-[15px]">
                       <span className="inline-flex items-center gap-[5px]">
                         <Clock3 size={14} /> {service.durationMinutes} phút
                       </span>
@@ -280,7 +288,7 @@ export async function HomePage() {
                     </div>
                     <Link
                       href="/appointments"
-                      className="mt-[13px] inline-flex items-center gap-[5px] text-[11px] font-bold text-[#0d3bb9]"
+                      className="mt-[13px] inline-flex items-center gap-[5px] text-[15px] font-bold text-[#0d3bb9]"
                     >
                       Đặt lịch dịch vụ <ArrowRight size={15} />
                     </Link>
@@ -304,7 +312,7 @@ export async function HomePage() {
             <span className="inline-flex w-fit items-center gap-[7px] text-xs font-extrabold tracking-[.11em] text-[#0d3bb9]">
               MỌI BƯỚC ĐỀU RÕ RÀNG
             </span>
-            <h2 className="mt-2.5 mb-2 font-[family-name:var(--font-jakarta)] text-[clamp(27px,3vw,37px)] leading-[1.25] font-extrabold tracking-[-.055em]">
+            <h2 className="mt-2.5 mb-2 font-[family-name:var(--font-jakarta)] text-[clamp(27px,3vw,37px)] leading-[1.25] font-extrabold ">
               Một hành trình chăm xe thật nhẹ nhàng.
             </h2>
             <p className="text-[13px] text-[#65738c]">
@@ -322,7 +330,7 @@ export async function HomePage() {
                   BƯỚC 0{index + 1}
                 </span>
                 <h3 className="my-[5px] text-[13px] font-extrabold">{title}</h3>
-                <p className="mx-auto max-w-[145px] text-[11px] leading-normal text-[#65738c]">
+                <p className="mx-auto max-w-[145px] text-[15px] leading-normal text-[#65738c]">
                   {detail}
                 </p>
               </div>
@@ -337,7 +345,7 @@ export async function HomePage() {
             <span className="inline-flex w-fit items-center gap-[7px] text-xs font-extrabold tracking-[.11em] text-[#0d3bb9]">
               MỘT NƠI CHO MỌI THÔNG TIN
             </span>
-            <h2 className="mt-[14px] mb-4 max-w-[480px] font-[family-name:var(--font-jakarta)] text-[clamp(29px,3.4vw,43px)] leading-[1.2] font-extrabold tracking-[-.055em]">
+            <h2 className="mt-[14px] mb-4 max-w-[480px] font-[family-name:var(--font-jakarta)] text-[clamp(29px,3.4vw,43px)] leading-[1.2] font-extrabold tracking-[-.030em]">
               Từng quyết định chăm xe,{" "}
               <span className="text-[#0d3bb9]">đều có cơ sở.</span>
             </h2>
@@ -360,7 +368,7 @@ export async function HomePage() {
               >
                 <Icon size={22} className="text-[#0d3bb9]" />
                 <strong className="mt-1 text-[13px]">{title}</strong>
-                <span className="text-[11px] leading-normal text-[#65738c]">
+                <span className="text-[15px] leading-normal text-[#65738c]">
                   {detail}
                 </span>
               </div>
