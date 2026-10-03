@@ -12,6 +12,8 @@ type LoaderOptions = {
   encodedByteLimit: number;
   onFrame: () => void;
   fetchConcurrency?: number;
+  preloadAhead?: number;
+  preloadBehind?: number;
   fetchFrame?: (url: string, signal: AbortSignal) => Promise<Blob>;
   decodeFrame?: (blob: Blob) => Promise<ScrollFrame>;
 };
@@ -56,6 +58,7 @@ export class ScrollFrameLoader {
   private target = 0;
   private direction = 1;
   private preloading = false;
+  private active = true;
   private disposed = false;
 
   constructor(private readonly options: LoaderOptions) {}
@@ -66,18 +69,23 @@ export class ScrollFrameLoader {
     this.direction = direction < 0 ? -1 : 1;
     this.wanted = this.order(this.options.decodedLimit).slice(0, this.options.decodedLimit);
 
-    // A large jump or direction change must not wait behind distant downloads.
-    if (!this.blobs.has(this.target) && !this.frames.has(this.target) && !this.fetching.has(this.target)) {
-      for (const [candidate, controller] of this.fetching) {
-        if (Math.abs(candidate - this.target) > this.options.decodedLimit) controller.abort();
-      }
-    }
+    this.cancelDistantDownloads();
     this.pump();
   }
 
   setPreloading(enabled: boolean) {
     if (this.disposed) return;
     this.preloading = enabled;
+    this.cancelDistantDownloads();
+    this.pump();
+  }
+
+  setActive(active: boolean) {
+    if (this.disposed) return;
+    this.active = active;
+    if (!active) {
+      for (const controller of this.fetching.values()) controller.abort();
+    }
     this.pump();
   }
 
@@ -112,14 +120,33 @@ export class ScrollFrameLoader {
     this.encodedBytes = 0;
   }
 
-  private order(radius: number) {
+  private order(radius: number, behind = radius) {
     const indices = [this.target];
-    for (let offset = 1; offset <= radius; offset++) {
-      for (const candidate of [this.target + offset * this.direction, this.target - offset * this.direction]) {
+    for (let offset = 1; offset <= Math.max(radius, behind); offset++) {
+      const candidates = [];
+      if (offset <= radius) candidates.push(this.target + offset * this.direction);
+      if (offset <= behind) candidates.push(this.target - offset * this.direction);
+      for (const candidate of candidates) {
         if (candidate >= 0 && candidate < this.options.count) indices.push(candidate);
       }
     }
     return indices;
+  }
+
+  private fetchOrder() {
+    return this.preloading
+      ? this.order(
+          this.options.preloadAhead ?? this.options.decodedLimit * 3,
+          this.options.preloadBehind ?? this.options.decodedLimit,
+        )
+      : this.wanted;
+  }
+
+  private cancelDistantDownloads() {
+    const needed = new Set(this.fetchOrder());
+    for (const [index, controller] of this.fetching) {
+      if (!needed.has(index)) controller.abort();
+    }
   }
 
   private storeBlob(index: number, blob: Blob) {
@@ -135,14 +162,14 @@ export class ScrollFrameLoader {
   }
 
   private pump() {
-    if (this.disposed) return;
+    if (this.disposed || !this.active) return;
     this.pumpDecoding();
-    const order = this.preloading ? this.order(this.options.count) : this.wanted;
+    const order = this.fetchOrder();
     const concurrency = this.options.fetchConcurrency ?? 4;
     for (const index of order) {
       if (this.fetching.size >= concurrency) break;
       if (this.blobs.has(index) || this.frames.has(index) || this.fetching.has(index) || this.failed.has(index)) continue;
-      // An evicted background download is fetched again only when it is needed nearby.
+      // Do not repeatedly refill an evicted background frame when the byte budget is full.
       if (this.downloaded.has(index) && !this.wanted.includes(index)) continue;
       const controller = new AbortController();
       this.fetching.set(index, controller);
@@ -191,7 +218,7 @@ export class ScrollFrameLoader {
           this.frames.get(farthest)!.release();
           this.frames.delete(farthest);
         }
-        this.options.onFrame();
+        if (this.active) this.options.onFrame();
       })
       .catch(() => { if (!this.disposed) this.failed.add(index); })
       .finally(() => {

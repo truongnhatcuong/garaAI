@@ -7,11 +7,12 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { autocareScrollFrames } from "@/generated/autocare-scroll-frames";
 import { ScrollFrameLoader } from "@/lib/scroll-frame-loader";
+import { scrollCanvasSize, ScrollPerformanceMonitor } from "@/lib/scroll-performance";
 
-const { count, width, height, path, mobilePath, version } =
+const { count, width, height, path, version } =
   autocareScrollFrames;
-const frameUrl = (index: number, mobile = false) =>
-  `${mobile ? mobilePath : path}${String(index + 1).padStart(4, "0")}.webp?v=${version}`;
+const frameUrl = (index: number) =>
+  `${path}${String(index + 1).padStart(4, "0")}.webp?v=${version}`;
 
 // How far into the scroll (as a fraction of the section) the hero copy stays
 // visible before gracefully fading away to let the frame sequence take over.
@@ -35,39 +36,33 @@ export function ScrollVideoSection() {
 
   useEffect(() => {
     const section = sectionRef.current;
-    const skipLink = skipLinkRef.current;
-    if (!section || !skipLink) return;
-    let idleTimeout = 0;
-    const revealSkipLink = () => {
-      skipLink.dataset.active = "true";
-      window.clearTimeout(idleTimeout);
-      idleTimeout = window.setTimeout(() => {
-        skipLink.dataset.active = "false";
-      }, 2000);
-    };
-    section.addEventListener("pointermove", revealSkipLink, { passive: true });
-    section.addEventListener("pointerdown", revealSkipLink, { passive: true });
-    return () => {
-      window.clearTimeout(idleTimeout);
-      section.removeEventListener("pointermove", revealSkipLink);
-      section.removeEventListener("pointerdown", revealSkipLink);
-    };
-  }, []);
-
-  useEffect(() => {
-    const section = sectionRef.current;
     const canvas = canvasRef.current;
     if (!section || !canvas) return;
     const context = canvas.getContext("2d");
-    if (!context) return;
+    if (!context) {
+      loaderOverlayRef.current?.classList.add("opacity-0", "pointer-events-none");
+      return;
+    }
 
     gsap.registerPlugin(ScrollTrigger);
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const mobileQuery = window.matchMedia("(max-width: 767px)");
-    let loader: ScrollFrameLoader;
-    let nearby = false;
+    const device = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+      deviceMemory?: number;
+    });
+    // Device hints affect only background loading, never image quality.
+    const conservativeLoading = Boolean(
+      device.connection?.saveData
+      || ["slow-2g", "2g"].includes(device.connection?.effectiveType ?? "")
+      || (device.deviceMemory && device.deviceMemory <= 4)
+      || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4),
+    );
+    let paintInterval = 1000 / 60;
+    const performanceMonitor = new ScrollPerformanceMonitor();
+    let nearby = true;
+    let visible = true;
     let target = 0;
     let drawn = -1;
     let direction = 1;
@@ -77,26 +72,25 @@ export function ScrollVideoSection() {
     let rawProgress = 0;
     let smoothProgress = 0;
     let rawDirection = 1;
+    let cssWidth = 0;
+    let cssHeight = 0;
+    let lastDrawTime = 0;
+    // Keep the poster visible if an image download fails instead of blocking on a spinner.
+    const loadingTimeout = window.setTimeout(() => {
+      loaderOverlayRef.current?.classList.add("opacity-0", "pointer-events-none");
+    }, 1800);
 
     // Entrance reveal for the overlay copy, independent of the long scrub so
     // it feels intentional the moment the section comes into view.
-    if (headingRef.current) {
-      if (reducedMotion) {
-        gsap.set(headingRef.current.children, { opacity: 1, y: 0 });
-      } else {
-        gsap.fromTo(
+    const entrance = headingRef.current && !reducedMotion
+      ? gsap.fromTo(
           headingRef.current.children,
           { y: 24, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.9,
-            ease: "power3.out",
-            stagger: 0.12,
-            delay: 0.15,
-          },
-        );
-      }
+          { y: 0, opacity: 1, duration: 0.9, ease: "power3.out", stagger: 0.12, delay: 0.15 },
+        )
+      : null;
+    if (headingRef.current && reducedMotion) {
+      gsap.set(headingRef.current.children, { opacity: 1, y: 0 });
     }
     if (reducedMotion) {
       scrollCueRef.current?.style.setProperty("display", "none");
@@ -106,18 +100,21 @@ export function ScrollVideoSection() {
       );
     }
 
-    const draw = () => {
+    const draw = (now: number) => {
       animationFrame = 0;
-      if (disposed) return;
+      if (disposed || !nearby || document.hidden) return;
       const exact = loader.get(target);
       const selected = exact
         ? { index: target, frame: exact }
         : loader.closest(target, drawn, direction);
       if (!selected || drawn === selected.index) return;
       const { frame, index } = selected;
-      const cssWidth = canvas.clientWidth;
-      const cssHeight = canvas.clientHeight;
       if (!cssWidth || !cssHeight) return;
+      // Bound raster work on high-refresh displays without changing image detail.
+      if (now - lastDrawTime < paintInterval) {
+        animationFrame = window.requestAnimationFrame(draw);
+        return;
+      }
       const scale = Math.max(cssWidth / frame.width, cssHeight / frame.height);
       const imageWidth = frame.width * scale;
       const imageHeight = frame.height * scale;
@@ -131,10 +128,12 @@ export function ScrollVideoSection() {
         imageHeight,
       );
       drawn = index;
+      lastDrawTime = now - ((now - lastDrawTime) % paintInterval);
       if (counterRef.current)
         counterRef.current.textContent = `${String(index + 1).padStart(3, "0")} / ${count}`;
       if (!hasPainted) {
         hasPainted = true;
+        window.clearTimeout(loadingTimeout);
         // First frame is on screen: dismiss the loading veil so the reveal
         // feels instant instead of waiting for every asset to settle.
         loaderOverlayRef.current?.classList.add(
@@ -149,18 +148,18 @@ export function ScrollVideoSection() {
     };
 
     const resizeCanvas = () => {
-      const cssWidth = canvas.clientWidth;
-      const cssHeight = canvas.clientHeight;
+      const nextCssWidth = canvas.clientWidth;
+      const nextCssHeight = canvas.clientHeight;
+      const cssChanged = cssWidth !== nextCssWidth || cssHeight !== nextCssHeight;
+      cssWidth = nextCssWidth;
+      cssHeight = nextCssHeight;
       if (!cssWidth || !cssHeight) return;
-      // Cap the backing store at 4K to avoid huge allocations on high-DPR displays.
-      const ratio = Math.min(
-        window.devicePixelRatio || 1,
-        2,
-        4096 / cssWidth,
-        4096 / cssHeight,
+      const { width: backingWidth, height: backingHeight, ratio } = scrollCanvasSize(
+        cssWidth, cssHeight, window.devicePixelRatio,
       );
-      canvas.width = Math.round(cssWidth * ratio);
-      canvas.height = Math.round(cssHeight * ratio);
+      if (!cssChanged && canvas.width === backingWidth && canvas.height === backingHeight) return;
+      canvas.width = backingWidth;
+      canvas.height = backingHeight;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
@@ -168,13 +167,15 @@ export function ScrollVideoSection() {
       requestDraw();
     };
 
-    const createLoader = (mobile: boolean) =>
+    const createLoader = () =>
       new ScrollFrameLoader({
         count: reducedMotion ? 1 : count,
-        url: (index) => frameUrl(index, mobile),
-        decodedLimit: reducedMotion ? 1 : mobile ? 12 : 8,
-        encodedByteLimit: (mobile ? 48 : 96) * 1024 * 1024,
-        fetchConcurrency: mobile ? 4 : 6,
+        url: frameUrl,
+        decodedLimit: reducedMotion ? 1 : conservativeLoading ? 8 : 12,
+        encodedByteLimit: (conservativeLoading ? 8 : 16) * 1024 * 1024,
+        fetchConcurrency: conservativeLoading ? 2 : 4,
+        preloadAhead: conservativeLoading ? 12 : 24,
+        preloadBehind: 6,
         onFrame: requestDraw,
       });
 
@@ -209,9 +210,7 @@ export function ScrollVideoSection() {
         headingRef.current.style.opacity = String(1 - fade);
         headingRef.current.style.transform = `translateY(${-fade * 28}px)`;
       }
-      // Near the end of the scroll, dissolve the frame sequence into the
-      // section below (soft light wash + slight zoom/desaturate on the
-      // canvas) instead of cutting hard into the next block's background.
+      // The overlay handles the dissolve without a full-screen color filter.
       const endStart = 1 - END_TRANSITION_RANGE;
       const endEase = Math.max(0, (progress - endStart) / END_TRANSITION_RANGE);
       if (endTransitionRef.current) {
@@ -221,28 +220,30 @@ export function ScrollVideoSection() {
       // its own GPU layer once the inline style takes over from the
       // Tailwind class.
       canvas.style.transform = `translateZ(0) scale(${1 + endEase * 0.04})`;
-      canvas.style.filter = `saturate(${1 - endEase * 0.35}) brightness(${1 + endEase * 0.08})`;
     };
 
-    loader = createLoader(mobileQuery.matches);
+    const loader = createLoader();
     loader.seek(0, 1);
-    const changeVariant = () => {
-      loader.dispose();
-      loader = createLoader(mobileQuery.matches);
-      drawn = -1;
-      loader.seek(target, direction);
+    const updateActivity = () => {
+      loader.setActive(nearby && !document.hidden);
       loader.setPreloading(nearby && !reducedMotion);
-      requestDraw();
+      performanceMonitor.reset();
+      if (nearby && !document.hidden) requestDraw();
     };
-    mobileQuery.addEventListener("change", changeVariant);
     const preloadObserver = new IntersectionObserver(
       ([entry]) => {
         nearby = entry.isIntersecting;
-        loader.setPreloading(nearby && !reducedMotion);
+        updateActivity();
       },
-      { rootMargin: "100% 0px" },
+      { rootMargin: "50% 0px" },
     );
     preloadObserver.observe(section);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      performanceMonitor.reset();
+    });
+    visibilityObserver.observe(section);
+    document.addEventListener("visibilitychange", updateActivity);
     const resizeObserver = new ResizeObserver(resizeCanvas);
     resizeObserver.observe(canvas);
     window.addEventListener("resize", resizeCanvas, { passive: true });
@@ -252,9 +253,21 @@ export function ScrollVideoSection() {
     // wheel/trackpad bursts glide between frames instead of snapping — the
     // single biggest lever for perceived scroll smoothness here.
     const smoothTick = () => {
+      if (!visible || document.hidden) {
+        performanceMonitor.reset();
+        return;
+      }
       const delta = rawProgress - smoothProgress;
-      if (Math.abs(delta) < 0.00005) return;
-      smoothProgress += delta * SCRUB_SMOOTHING;
+      if (Math.abs(delta) < 0.00005) {
+        performanceMonitor.reset();
+        return;
+      }
+      if (paintInterval < 1000 / 30 && performanceMonitor.record(performance.now())) {
+        paintInterval = 1000 / 30;
+      }
+      // Keep the trailing speed consistent on 30, 60 and 120 Hz displays.
+      const smoothing = 1 - Math.pow(1 - SCRUB_SMOOTHING, gsap.ticker.deltaRatio(60));
+      smoothProgress += delta * smoothing;
       if (Math.abs(rawProgress - smoothProgress) < 0.0008)
         smoothProgress = rawProgress;
       applyProgress(smoothProgress, rawDirection);
@@ -290,10 +303,13 @@ export function ScrollVideoSection() {
     return () => {
       disposed = true;
       trigger?.kill();
+      entrance?.kill();
+      window.clearTimeout(loadingTimeout);
       if (!reducedMotion) gsap.ticker.remove(smoothTick);
       resizeObserver.disconnect();
       preloadObserver.disconnect();
-      mobileQuery.removeEventListener("change", changeVariant);
+      visibilityObserver.disconnect();
+      document.removeEventListener("visibilitychange", updateActivity);
       window.removeEventListener("resize", resizeCanvas);
       window.cancelAnimationFrame(animationFrame);
       loader.dispose();
@@ -307,25 +323,21 @@ export function ScrollVideoSection() {
       className="relative z-50 h-[450vh] bg-[#08131d] text-white motion-reduce:h-screen"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <picture>
-          <source media="(max-width: 767px)" srcSet={frameUrl(0, true)} />
-          <Image
-            src={frameUrl(0)}
-            width={width}
-            height={height}
-            alt=""
-            unoptimized
-            loading="eager"
-            fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-[40%_center] md:object-center"
-          />
-        </picture>
+        <Image
+          src={frameUrl(0)}
+          width={width}
+          height={height}
+          alt=""
+          unoptimized
+          loading="eager"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-[40%_center] md:object-center"
+        />
         <canvas
           ref={canvasRef}
           role="img"
           aria-label="Chuỗi hình ảnh chiếc xe trong xưởng, thay đổi theo vị trí cuộn trang"
-          className="absolute inset-0 h-full w-full transition-[filter] duration-100 will-change-transform"
-          style={{ transform: "translateZ(0)" }}
+          className="absolute inset-0 h-full w-full will-change-transform [transform:translateZ(0)]"
         />
 
         {/* End-of-scroll dissolve: softens the hard cut into the section
@@ -376,7 +388,7 @@ export function ScrollVideoSection() {
           </div>
           <div
             ref={headingRef}
-            className="max-w-[700px] pb-8 will-change-transform md:pb-14"
+            className="max-w-[700px] pb-16 will-change-transform md:pb-14"
           >
             <span className="mb-4 block text-[11px] font-semibold uppercase tracking-[.26em] text-[#85dbe8] md:text-xs">
               Chăm sóc xe theo cách bạn có thể tin tưởng
@@ -427,7 +439,7 @@ export function ScrollVideoSection() {
           ref={skipLinkRef}
           href="#home-content"
           aria-label="Bỏ qua trải nghiệm 3D, đến nội dung trang chủ"
-          className="absolute bottom-6 right-5 z-30 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-transparent px-3 text-[5px] font-medium text-white/80 opacity-40 transition-[opacity,background-color,border-color] duration-300 hover:border-white/15 hover:bg-white/5 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9fe8f1] data-[active=true]:opacity-100 motion-reduce:transition-none md:bottom-10 md:right-12"
+          className="absolute bottom-6 right-5 z-30 inline-flex min-h-11 items-center gap-1.5 px-2 text-[10px] font-medium text-white/60 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9fe8f1] motion-reduce:transition-none md:bottom-10 md:right-12"
         >
           Bỏ qua 3D <ArrowDown size={12} aria-hidden="true" />
         </a>

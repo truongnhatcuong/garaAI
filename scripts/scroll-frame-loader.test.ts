@@ -122,3 +122,88 @@ test("a slow background decode leaves capacity for a new exact frame", async () 
   for (const resolve of waiting) resolve(fakeFrame(() => undefined));
   await settle();
 });
+
+test("preloading stays in a bounded window and follows forward and reverse scrolling", async () => {
+  const downloads: number[] = [];
+  const loader = new ScrollFrameLoader({
+    count: 480, url: String, decodedLimit: 3, encodedByteLimit: 1000,
+    preloadAhead: 6, preloadBehind: 2,
+    onFrame: () => undefined,
+    fetchFrame: async (url) => {
+      downloads.push(Number(url));
+      return new Blob([url]);
+    },
+    decodeFrame: async () => fakeFrame(() => undefined),
+  });
+  loader.seek(0, 1);
+  loader.setPreloading(true);
+  await settle();
+  assert.deepEqual([...downloads].sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6]);
+  downloads.length = 0;
+  loader.seek(100, 1);
+  await settle();
+  assert.equal(downloads[0], 100);
+  assert.ok(downloads.every((index) => index >= 98 && index <= 106));
+  assert.ok(loader.get(100));
+  downloads.length = 0;
+  loader.seek(50, -1);
+  await settle();
+  assert.equal(downloads[0], 50);
+  assert.ok(downloads.every((index) => index >= 44 && index <= 52));
+  assert.ok(loader.get(50));
+  loader.dispose();
+});
+
+test("pausing aborts requests and does not start more work until resumed", async () => {
+  const requests: string[] = [];
+  let aborted = 0;
+  const loader = new ScrollFrameLoader({
+    count: 480, url: String, decodedLimit: 3, encodedByteLimit: 1000,
+    fetchConcurrency: 2,
+    onFrame: () => undefined,
+    fetchFrame: (url, signal) => {
+      requests.push(url);
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener("abort", () => {
+          aborted++;
+          reject(new DOMException("Aborted", "AbortError"));
+        }, { once: true });
+      });
+    },
+  });
+  loader.seek(0, 1);
+  loader.setPreloading(true);
+  loader.setActive(false);
+  await settle();
+  assert.equal(aborted, 2);
+  assert.equal(requests.length, 2);
+  loader.seek(100, 1);
+  await settle();
+  assert.equal(requests.length, 2);
+  loader.setActive(true);
+  await settle();
+  assert.equal(requests[2], "100");
+  assert.equal(requests.length, 4);
+  loader.dispose();
+  await settle();
+});
+
+test("evicted preloads do not cause repeated downloads when the byte budget is full", async () => {
+  const downloads = new Map<string, number>();
+  const loader = new ScrollFrameLoader({
+    count: 20, url: String, decodedLimit: 2, encodedByteLimit: 5,
+    preloadAhead: 10, preloadBehind: 2,
+    onFrame: () => undefined,
+    fetchFrame: async (url) => {
+      downloads.set(url, (downloads.get(url) ?? 0) + 1);
+      return new Blob([url]);
+    },
+    decodeFrame: async () => fakeFrame(() => undefined),
+  });
+  loader.seek(0, 1);
+  loader.setPreloading(true);
+  await settle();
+  assert.equal(downloads.size, 11);
+  assert.ok([...downloads.values()].every((times) => times === 1));
+  loader.dispose();
+});
