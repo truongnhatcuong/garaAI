@@ -23,7 +23,6 @@ const links = [
   ["Xe của tôi", "/vehicles"],
   ["Theo dõi sửa chữa", "/repairs"],
   ["Báo giá & Hóa đơn", "/invoices"],
-  ["Trợ lý AI", "/ai-assistant"],
 ];
 export function CustomerShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();

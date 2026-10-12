@@ -1,7 +1,6 @@
-import { AiAssistantPage } from "@/components/customer/AiAssistantPage";
-import { getCurrentUser } from "@/server/services/auth";
+import { redirect } from "next/navigation";
+import { customerAssistantHref } from "@/lib/customer-assistant-navigation";
 
-export default async function Page() {
-  const user = await getCurrentUser();
-  return <AiAssistantPage customerName={user?.role === "CUSTOMER" ? user.customer?.name ?? null : null} />;
+export default function Page() {
+  redirect(customerAssistantHref);
 }

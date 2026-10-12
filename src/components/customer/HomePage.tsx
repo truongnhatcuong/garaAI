@@ -1,6 +1,9 @@
 import { DiagnosticVehicle } from "@/components/customer/DiagnosticVehicle";
 import { GarageMapSection } from "@/components/customer/GarageMapSection";
 import { ScrollVideoSection } from "@/components/customer/ScrollVideoSection";
+import { AssistantLink } from "@/components/customer/AssistantLink";
+import { customerAssistantHref } from "@/lib/customer-assistant-navigation";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -39,7 +42,7 @@ const highlights = [
     icon: ScanSearch,
     title: "Hỗ trợ tư vấn bằng AI",
     detail: "Hỏi đáp về tình trạng xe bằng ngôn ngữ dễ hiểu.",
-    url: "/ai-assistant",
+    url: customerAssistantHref,
   },
   {
     icon: Wrench,
@@ -81,6 +84,12 @@ const features = [
     detail: "Mọi lần bảo dưỡng đều có thể tra cứu lại.",
   },
 ];
+
+function HighlightLink({ href, className, children }: { href: string; className: string; children: ReactNode }) {
+  return href === customerAssistantHref
+    ? <AssistantLink className={className}>{children}</AssistantLink>
+    : <Link href={href} className={className}>{children}</Link>;
+}
 
 export async function HomePage() {
   const mapPromise = getSiteMap();
@@ -224,7 +233,7 @@ export async function HomePage() {
           </div>
           <div className="grid grid-cols-1 gap-3.5 min-[480px]:grid-cols-2 lg:grid-cols-4">
             {highlights.map(({ icon: Icon, title, detail, url }, index) => (
-              <Link
+              <HighlightLink
                 href={url}
                 className="flex min-h-[145px] flex-col rounded-xl border border-[#e5ebf5] bg-white p-5 text-[#0b1930] no-underline shadow-[0_4px_18px_#123e7a08] transition-all hover:-translate-y-[5px] hover:border-[#b5ccff] hover:shadow-[0_15px_30px_#123e7a16] min-[480px]:min-h-[233px]"
                 key={title}
@@ -244,9 +253,9 @@ export async function HomePage() {
                   {detail}
                 </p>
                 <span className="mt-auto inline-flex items-center gap-2 pt-[18px] text-[15px] font-extrabold text-[#0d3bb9]">
-                  Xem dịch vụ <ArrowRight size={15} />
+                  {url === customerAssistantHref ? "Hỏi trợ lý AI" : "Xem dịch vụ"} <ArrowRight size={15} />
                 </span>
-              </Link>
+              </HighlightLink>
             ))}
           </div>
           {services.length > 0 && (

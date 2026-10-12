@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarCheck2, Headset, ShieldCheck } from "lucide-react";
 import { Brand } from "@/components/shared/Brand";
+import { AssistantLink } from "@/components/customer/AssistantLink";
 
 const footerGroups = [
   {
@@ -9,7 +10,6 @@ const footerGroups = [
       { label: "Trang chủ", href: "/" },
       { label: "Dịch vụ", href: "/services" },
       { label: "Đặt lịch bảo dưỡng", href: "/appointments" },
-      { label: "Trợ lý AI", href: "/ai-assistant" },
     ],
   },
   {
@@ -51,7 +51,7 @@ export function CustomerFooter() {
         <div>
           <h2 className="font-[family-name:var(--font-jakarta)] text-sm font-bold">Cần hỗ trợ?</h2>
           <p className="mt-5 text-[13px] leading-6 text-slate-300">Bạn có thể hỏi trợ lý AI về tình trạng xe hoặc xem lại tiến độ sửa chữa bất cứ lúc nào.</p>
-          <Link href="/ai-assistant" className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/20 px-3.5 py-2.5 text-xs font-semibold text-white transition hover:border-blue-300 hover:bg-white/10"><Headset size={16} /> Hỏi trợ lý AI <ArrowRight size={14} /></Link>
+          <AssistantLink className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/20 px-3.5 py-2.5 text-xs font-semibold text-white transition hover:border-blue-300 hover:bg-white/10"><Headset size={16} /> Hỏi trợ lý AI <ArrowRight size={14} /></AssistantLink>
         </div>
       </div>
 
